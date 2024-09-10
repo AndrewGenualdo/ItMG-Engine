@@ -13,29 +13,76 @@ const int SCREEN_HEIGHT = 720;
 
 using namespace std;
 
-const char *vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"out vec3 pos;\n"
-		"void main() {\n"
-		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"pos = vec3(aPos.x, aPos.y, aPos.z);\n"
-		"}\0";
+const char *vertexShaderSource = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
+
+uniform float time;
+
+out vec3 pos;
+out vec4 color;
+
+void main() {
+	vec4 posOut = vec4(aPos.x + sin(time) / 4.0f, aPos.y + cos(time) / 4.0f, aPos.z, 1.0);
+	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);//posOut;
+	pos = aPos;
+	color = aColor;
+}
+)";
 
 
-const char *fragmentShaderSource = "#version 330 core\n"
-"in vec3 pos;\n"
-"out vec4 FragColor;\n"
-"void main() {\n"
-	"float b = (pos.y + 0.5f) * 2;\n"
-	"float r = (-(pos.x - 0.5) * 2) - b / 2f;\n"
-	"float g = ((pos.x + 0.5f) * 2) - b / 2f;\n"
-	"FragColor = vec4(r, g, b, 1.0f);\n"
-"}\0";
+const char *fragmentShaderSource = R"(
+#version 330 core
+in vec3 pos;
+in vec4 color;
+
+uniform float time;
+
+out vec4 FragColor;
+
+
+void main() {
+	float b1 = (pos.y + 0.5f) * 2;
+	float a1 = (-(pos.x - 0.5) * 2) - b1 / 2f;
+	float c1 = ((pos.x + 0.5f) * 2) - b1 / 2f;
+
+	float a = a1 / (a1 + b1 + c1) * 1.3333f;
+	float b = b1 / (a1 + b1 + c1) * 1.3333f;
+	float c = c1 / (a1 + b1 + c1) * 1.3333f;
+
+	vec4 rgb;
+
+	int timeStamp = 3; //must be multiple of 3
+
+	int stage = int(time) % timeStamp;
+	float fl = ((stage % (timeStamp / 3)) + (time - int(time))) / (timeStamp / 3);
+	if(stage < timeStamp / 3) {
+		rgb.r = mix(a, b, fl);
+		rgb.g = mix(b, c, fl);
+		rgb.b = mix(c, a, fl);
+	} else if(stage >= timeStamp * 2 / 3) {
+		rgb.r = mix(c, a, fl);
+		rgb.g = mix(a, b, fl);
+		rgb.b = mix(b, c, fl);
+	} else {
+		rgb.r = mix(b, c, fl);
+		rgb.g = mix(c, a, fl);
+		rgb.b = mix(a, b, fl);
+	}
+
+
+	//FragColor = vec4(r, g, b, 1.0f);
+	//FragColor = vec4(sin(time), 0.0f, 0.0f, 1.0f);
+	//FragColor = vec4(rgb.r, rgb.g, rgb.b, 1.0f);
+	FragColor = color;
+}
+)";
 
 const float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.0f, 0.5f, 0.0f
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 };
 
 int main() {
@@ -104,12 +151,17 @@ int main() {
 		cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
+
 	glUseProgram(shaderProgram);
+
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+
 
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -118,8 +170,13 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//Position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	//Color
+	glVertexAttribPointer(1, 4 , GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 
 
@@ -133,8 +190,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		//Drawing happens here!
 
-
+		int timeLocation = glGetUniformLocation(shaderProgram, "time");
 		glUseProgram(shaderProgram);
+		glUniform1f(timeLocation, static_cast<float>(glfwGetTime()));
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
