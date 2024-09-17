@@ -17,7 +17,9 @@ set(CORE_INC_DIR
 
 add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/shader.cpp
-        cobb/shader.hpp)
+        cobb/shader.hpp
+        cobb/window.cpp
+        cobb/window.hpp)
 
 find_package(OpenGL REQUIRED)
 
