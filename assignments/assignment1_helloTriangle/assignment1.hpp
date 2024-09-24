@@ -11,13 +11,16 @@
 
 using namespace cobb;
 
-const float vertices[] = {
-	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-	0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
-};
+
 
 int assignment1() {
+
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
+	};
+
 	const auto window = Window("Hello ∆");
 
 	unsigned int VBO;
@@ -36,7 +39,7 @@ int assignment1() {
 	glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VAO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	//Position

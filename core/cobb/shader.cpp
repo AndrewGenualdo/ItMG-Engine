@@ -105,3 +105,5 @@ void cobb::Shader::setInt(const string &name, int value) const {
 void cobb::Shader::setFloat(const string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+//void cobb::Shader::setTexture2D(const string &name, )
