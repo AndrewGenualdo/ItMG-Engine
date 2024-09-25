@@ -1,0 +1,168 @@
+//
+// Created by cobble on 9/25/2024.
+//
+
+#include "texture2d.hpp"
+
+cobb::Texture2d::Texture2d(const string &path, Shader* shader, float positions[8])
+{
+    loadVertices(positions);
+    m_path = path.c_str();
+    m_filterMode = GL_NEAREST;
+    m_wrapMode = GL_REPEAT;
+    m_shader = shader;
+}
+
+cobb::Texture2d::Texture2d(const string &path, Shader* shader, int filterMode, int wrapMode, float positions[8])
+{
+    loadVertices(positions);
+    m_path = path.c_str();
+    m_filterMode = filterMode;
+    m_wrapMode = wrapMode;
+    m_shader = shader;
+}
+
+void cobb::Texture2d::load()
+{
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    //coordinates
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), static_cast<void *>(nullptr));
+    glEnableVertexAttribArray(0);
+
+    //color
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    //texture coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float),reinterpret_cast<void *>(7 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrapMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_wrapMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filterMode);
+
+    int nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load(m_path, &m_width, &m_height, &nrChannels, 0);
+    int colorType = nrChannels == 3 ? GL_RGB : GL_RGBA;
+    if(data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, colorType, m_width, m_height, 0, colorType, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        cout << "Failed to load texture: " << m_path << endl;
+    }
+
+    m_shader->use();
+
+    stbi_image_free(data);
+
+
+}
+
+cobb::Texture2d::~Texture2d()
+{
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
+
+void cobb::Texture2d::draw() const
+{
+    if(selectedTexture != m_id) {
+        glBindTexture(GL_TEXTURE_2D, m_id);
+        glBindVertexArray(VAO);
+        selectedTexture = m_id;
+    }
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+cobb::Shader *cobb::Texture2d::getShader()
+{
+    return m_shader;
+}
+
+void cobb::Texture2d::setShaderBool(const string &name, bool value)
+{
+    m_shader->setBool(name, value);
+}
+
+void cobb::Texture2d::setShaderInt(const string &name, int value)
+{
+    m_shader->setInt(name, value);
+}
+
+void cobb::Texture2d::setShaderFloat(const string &name, float value)
+{
+    m_shader->setFloat(name, value);
+}
+
+void cobb::Texture2d::loadVertices(float *positions)
+{
+    // corners (top right, bottom right, bottom left, top left) (4)
+    // positions (xyz) (3)
+    // color (rgba) (4)
+    // texture coords (xy) ((0,0) is bottom left) (2)
+    //4 * (3 + 4 + 2) = 36 data points
+    vertices[0] = positions[0]; //screen top right x
+    vertices[1] = positions[1]; //screen top right y
+    vertices[2] = 0.0f; //screen top right z
+    vertices[3] = 1.0f; //top right r
+    vertices[4] = 1.0f; //top right g
+    vertices[5] = 1.0f; //top right b
+    vertices[6] = 1.0f; //top right a
+    vertices[7] = 1.0f; //texture top right x
+    vertices[8] = 1.0f; //texture top right y
+    vertices[9] = positions[2]; //screen bottom right x
+    vertices[10] = positions[3]; //screen bottom right y
+    vertices[11] = 0.0f; //screen bottom right z
+    vertices[12] = 1.0f; //bottom right r
+    vertices[13] = 1.0f; //bottom right g
+    vertices[14] = 1.0f; //bottom right b
+    vertices[15] = 1.0f; //bottom right a
+    vertices[16] = 1.0f; //texture bottom right x
+    vertices[17] = 0.0f; //texture bottom right y
+    vertices[18] = positions[4]; //screen bottom left x
+    vertices[19] = positions[5]; //screen bottom left y
+    vertices[20] = 0.0f; //screen bottom left z
+    vertices[21] = 1.0f; //bottom left r
+    vertices[22] = 1.0f; //bottom left g
+    vertices[23] = 1.0f; //bottom left b
+    vertices[24] = 1.0f; //bottom left a
+    vertices[25] = 0.0f; //texture bottom left x
+    vertices[26] = 0.0f; //texture bottom left y
+    vertices[27] = positions[6]; //screen top left x
+    vertices[28] = positions[7]; //screen top left y
+    vertices[29] = 0.0f; //screen top left z
+    vertices[30] = 1.0f; //top left r
+    vertices[31] = 1.0f; //top left g
+    vertices[32] = 1.0f; //top left b
+    vertices[33] = 1.0f; //top left a
+    vertices[34] = 0.0f; //texture top left x
+    vertices[35] = 1.0f; //texture top left y;
+}
+
+
+
+

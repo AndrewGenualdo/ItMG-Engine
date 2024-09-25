@@ -16,16 +16,16 @@ namespace cobb {
 
         unsigned int ID; //the shader ID
 
-        Shader(std::string vertexPath, std::string fragmentPath);
+        Shader(string vertexPath, std::string fragmentPath);
 
         //"activate" the shader to whatever you draw until a different shader is activated? I think
         void use();
 
 
         //set uniforms for inside the shaders
-        void setBool(const std::string &name, bool value) const;
-        void setInt(const std::string &name, int value) const;
-        void setFloat(const std::string &name, float value) const;
+        void setBool(const string &name, bool value) const;
+        void setInt(const string &name, int value) const;
+        void setFloat(const string &name, float value) const;
 
     };
 }
