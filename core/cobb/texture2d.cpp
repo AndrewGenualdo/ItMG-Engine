@@ -24,11 +24,12 @@ cobb::Texture2d::Texture2d(const string &path, Shader* shader, int filterMode, i
 
 void cobb::Texture2d::load()
 {
-    glGenVertexArrays(1, &VAO);
+    getVAO();
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
-    glBindVertexArray(VAO);
+
+    glBindVertexArray(*getVAO());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -82,18 +83,24 @@ void cobb::Texture2d::load()
 
 cobb::Texture2d::~Texture2d()
 {
-    glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, getVAO());
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 }
 
-void cobb::Texture2d::draw() const
+void cobb::Texture2d::bind()
 {
-    if(selectedTexture != m_id) {
-        glBindTexture(GL_TEXTURE_2D, m_id);
-        glBindVertexArray(VAO);
+    glBindTexture(GL_TEXTURE_2D, m_id);
+    /*if(selectedTexture != m_id) {
+
+        glBindVertexArray(*getVAO());
         selectedTexture = m_id;
-    }
+    }*/
+}
+
+void cobb::Texture2d::draw()
+{
+    //bind();
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
@@ -161,7 +168,24 @@ void cobb::Texture2d::loadVertices(float *positions)
     vertices[33] = 1.0f; //top left a
     vertices[34] = 0.0f; //texture top left x
     vertices[35] = 1.0f; //texture top left y;
+
 }
+
+unsigned int cobb::Texture2d::getId()
+{
+    return m_id;
+}
+
+unsigned int* cobb::Texture2d::getVAO()
+{
+    if(VAO == -1) {
+        glGenVertexArrays(1, &VAO);
+    }
+
+    return &VAO;
+}
+
+
 
 
 

@@ -16,6 +16,7 @@ using namespace std;
 namespace cobb {
     static unsigned int textureCount = 0;
     static unsigned int selectedTexture = 4294967295;
+    static unsigned int VAO = -1;
     /*static const float vertices[] = {
             // positions (xyz)      color (rgba)              texture coords (xy) ((0,0) is bottom left)
             0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,// top right
@@ -33,7 +34,7 @@ namespace cobb {
     {
     private:
         unsigned int m_id;
-        unsigned int VBO, VAO, EBO;
+
         int m_width, m_height;
         int m_filterMode, m_wrapMode;
         const char *m_path;
@@ -43,13 +44,18 @@ namespace cobb {
 
 
     public:
+        unsigned int VBO, EBO;
         float vertices[36];
         Texture2d(const string &path, Shader* shader, float positions[8]);
         Texture2d(const string &path, Shader* shader, int filterMode, int wrapMode, float positions[8]);
         ~Texture2d();
-        void draw() const;
+        void bind();
+        void draw();
 
         Shader* getShader();
+        unsigned int getId();
+        static unsigned int* getVAO();
+
         void load();
 
         void setShaderBool(const string &name, bool value);
