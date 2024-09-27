@@ -10,7 +10,16 @@
 
 
 
+cobb::Shader::Shader(std::string basePath)
+{
+    load(basePath+".vert", basePath+".frag");
+}
+
 cobb::Shader::Shader(string vertexPath, string fragmentPath) {
+    load(vertexPath, fragmentPath);
+}
+
+void cobb::Shader::load(string vertexPath, string fragmentPath) {
     string vertexCode, fragmentCode;
 
     ifstream vShaderFile, fShaderFile;
@@ -83,10 +92,6 @@ cobb::Shader::Shader(string vertexPath, string fragmentPath) {
     //clean up the memory since they are already compiled/linked to the program
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-
-
-
-
 }
 
 void cobb::Shader::use() {
@@ -104,6 +109,10 @@ void cobb::Shader::setInt(const string &name, int value) const {
 
 void cobb::Shader::setFloat(const string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void cobb::Shader::setVec2(const string &name, float x, float y) const {
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y);
 }
 
 //void cobb::Shader::setTexture2D(const string &name, )

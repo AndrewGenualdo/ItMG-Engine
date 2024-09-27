@@ -24,7 +24,7 @@ int main() {
 
 
 
-    //DRAW SQUARE
+    /*//DRAW SQUARE
     auto breadShader = Shader("assets/assignment2/bread");
     breadShader.use();
     breadShader.setInt("tex", 0);
@@ -39,8 +39,15 @@ int main() {
     Texture2d bg = Texture2d("assets/assignment2/bg.png", GL_LINEAR, GL_REPEAT, bgPositions);
     Texture2d bg2 = Texture2d("assets/assignment2/bg2.png", GL_LINEAR, GL_REPEAT, bgPositions);
     
-    glBindVertexArray(*Texture2d::getVAO());
+    glBindVertexArray(*Texture2d::getVAO());*/
 
+    auto testShader = Shader("assets/testing/testing");
+    testShader.use();
+    testShader.setInt("tex", 0);
+    testShader.setVec2("dims", window.SCREEN_WIDTH, window.SCREEN_HEIGHT);
+    float screenCorners[] = {1, 1, 1, -1, -1, -1, -1, 1};
+    Texture2d errorTexture = Texture2d("assets/assignment2/bg.png", GL_LINEAR, GL_REPEAT, screenCorners);
+    glBindVertexArray(*Texture2d::getVAO());
     //Render loop
     while (!glfwWindowShouldClose(window.window)) {
         glfwPollEvents();
@@ -49,8 +56,14 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         //Drawing happens here!
         const auto time = static_cast<float>(glfwGetTime());
+        //glActiveTexture(GL_TEXTURE0);
+        testShader.use();
+        errorTexture.bind();
+        testShader.setFloat("time", time);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-        bgShader.use();
+
+        /*bgShader.use();
 
         glActiveTexture(GL_TEXTURE0);
         bg.bind();
@@ -65,7 +78,7 @@ int main() {
         bread.bind();
 
         breadShader.setFloat("time", time);
-        bread.draw();
+        bread.draw();*/
 
 
 
