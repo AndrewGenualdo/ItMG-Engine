@@ -9,8 +9,22 @@ out vec2 TexCoord;
 uniform sampler2D tex;
 uniform float time;
 
+vec2 rotatePoint(vec2 origin, float angleInRad, vec2 point) {
+
+    vec2 rotatedPoint = point - origin;
+    float s = sin(angleInRad);
+    float c = cos(angleInRad);
+    float xnew = rotatedPoint.x * c - rotatedPoint.y * s;
+    float ynew = rotatedPoint.x * s + rotatedPoint.y * c;
+    return vec2(xnew, ynew) + origin;
+
+}
+
 void main() {
-    gl_Position = vec4(aPos.x, aPos.y + abs(sin(time * 3.0f)) / 3.0f, aPos.z, 1.0f);
+
+    vec2 point = vec2(aPos.x, aPos.y);
+    point+=vec2((sin(time * 6.0f) / 3.0f), sin(time * 3.0f) / 3.0f);
+    gl_Position = vec4(rotatePoint(vec2(-cos(time)/3.0f,-sin(time)/3.0f), time, point), aPos.z, 1.0f);
     color = aColor;
     TexCoord = aTexCoord;
 }

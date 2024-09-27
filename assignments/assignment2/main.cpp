@@ -37,12 +37,12 @@ int main() {
     bgShader.use();
     bgShader.setInt("tex", 0);
     bgShader.setInt("tex2", 1);
-    float bgPositions[] = {1.5f, 1.5f, 1.5f, -1.5f, -1.5f, -1.5f, -1.5f, 1.5f};
+    float bgPositions[] = {2.5f, 2.5f, 2.5f, -2.5f, -2.5f, -2.5f, -2.5f, 2.5f};
     Texture2d bg = Texture2d("assets/assignment2/bg.png", &bgShader, GL_LINEAR, GL_REPEAT, bgPositions);
 
 
 
-    float repeat = 10;
+    float repeat = 20;
     // this might look random, but I have all the indexes linked to what they actually do in texture2d.cpp in the loadVertices function.
     // Depending on how much I end up doing this, I might make a constant for each index
     // So I can do bg.setVertex(TOP_LEFT_X, value) or something
