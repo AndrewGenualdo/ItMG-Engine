@@ -14,8 +14,8 @@ using namespace std;
 namespace cobb {
     class Window {
     public:
-        static constexpr int SCREEN_WIDTH = 1080;
-        static constexpr int SCREEN_HEIGHT = 720;
+        static constexpr int SCREEN_WIDTH = 1920;
+        static constexpr int SCREEN_HEIGHT = 1080;
 
         GLFWwindow* window;
 

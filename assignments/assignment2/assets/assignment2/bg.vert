@@ -10,7 +10,7 @@ uniform sampler2D tex;
 uniform float time;
 
 void main() {
-    gl_Position = vec4(aPos.x + ((cos(3 * time + aPos.x + aPos.y) + 1) / 2) - 0.5f, aPos.y + ((sin(3 * time + aPos.x + aPos.y) + 1) / 2) - 0.5f, aPos.z, 1.0f);
+    gl_Position = vec4(aPos.x + ((cos(1.2f * time + aPos.x + aPos.y) + 1) / 2) - 0.5f, aPos.y + ((sin(1.1f * time + aPos.x + aPos.y) + 1) / 2) - 0.5f, aPos.z, 1.0f);
     color = aColor;
     TexCoord = aTexCoord;
 }

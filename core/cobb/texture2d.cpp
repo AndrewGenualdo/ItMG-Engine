@@ -24,7 +24,7 @@ cobb::Texture2d::Texture2d(const string &path, Shader* shader, int filterMode, i
 
 void cobb::Texture2d::load()
 {
-    getVAO();
+    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
@@ -90,6 +90,7 @@ cobb::Texture2d::~Texture2d()
 
 void cobb::Texture2d::bind()
 {
+
     glBindTexture(GL_TEXTURE_2D, m_id);
     /*if(selectedTexture != m_id) {
 
@@ -108,21 +109,6 @@ void cobb::Texture2d::draw()
 cobb::Shader *cobb::Texture2d::getShader()
 {
     return m_shader;
-}
-
-void cobb::Texture2d::setShaderBool(const string &name, bool value)
-{
-    m_shader->setBool(name, value);
-}
-
-void cobb::Texture2d::setShaderInt(const string &name, int value)
-{
-    m_shader->setInt(name, value);
-}
-
-void cobb::Texture2d::setShaderFloat(const string &name, float value)
-{
-    m_shader->setFloat(name, value);
 }
 
 void cobb::Texture2d::loadVertices(float *positions)
@@ -178,10 +164,6 @@ unsigned int cobb::Texture2d::getId()
 
 unsigned int* cobb::Texture2d::getVAO()
 {
-    if(VAO == -1) {
-        glGenVertexArrays(1, &VAO);
-    }
-
     return &VAO;
 }
 
