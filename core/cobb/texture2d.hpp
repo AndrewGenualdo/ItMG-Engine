@@ -29,23 +29,22 @@ namespace cobb {
         int m_width, m_height;
         int m_filterMode, m_wrapMode;
         const char *m_path;
-        Shader* m_shader;
 
         void loadVertices(float positions[]);
 
 
     public:
-        unsigned int VAO, VBO, EBO;
+        unsigned int VBO, EBO;
         float vertices[36];
-        Texture2d(const string &path, Shader* shader, float positions[8]);
-        Texture2d(const string &path, Shader* shader, int filterMode, int wrapMode, float positions[8]);
+        Texture2d(const string &path, float positions[8]);
+        Texture2d(const string &path, int filterMode, int wrapMode, float positions[8]);
         ~Texture2d();
         void bind();
         void draw();
 
-        Shader* getShader();
         unsigned int getId();
-        unsigned int* getVAO();
+
+        static unsigned int* getVAO();
         //static unsigned int* getVAO();
 
         void load();

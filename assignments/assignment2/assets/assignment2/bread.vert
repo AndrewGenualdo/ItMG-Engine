@@ -20,7 +20,7 @@ vec2 rotatePoint(vec2 origin, float angleInRad, vec2 point) {
 
 void main() {
 
-    vec2 point = vec2(aPos.x, aPos.y);
+    vec2 point = vec2(aPos.x, aPos.y) * 0.15f;
     point+=vec2((sin(time * 5.8f) / 2.9f), sin(time * 3.2f) / 2.8f);
     gl_Position = vec4(rotatePoint(vec2(-cos(time * 2.7f)/3.1f,-sin(time * 4.1f)/3.0f), (sin(time / 1.1f) + 1) * abs(cos(time / 1.2f)) * 10.0f, point), aPos.z, 1.0f);
     color = aColor;

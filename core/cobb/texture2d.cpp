@@ -4,26 +4,23 @@
 
 #include "texture2d.hpp"
 
-cobb::Texture2d::Texture2d(const string &path, Shader* shader, float positions[8])
-{
+cobb::Texture2d::Texture2d(const string &path, float positions[8]) {
     loadVertices(positions);
     m_path = path.c_str();
     m_filterMode = GL_NEAREST;
     m_wrapMode = GL_REPEAT;
-    m_shader = shader;
+    load();
 }
 
-cobb::Texture2d::Texture2d(const string &path, Shader* shader, int filterMode, int wrapMode, float positions[8])
-{
+cobb::Texture2d::Texture2d(const string &path, int filterMode, int wrapMode, float positions[8]) {
     loadVertices(positions);
     m_path = path.c_str();
     m_filterMode = filterMode;
     m_wrapMode = wrapMode;
-    m_shader = shader;
+    load();
 }
 
-void cobb::Texture2d::load()
-{
+void cobb::Texture2d::load() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -45,7 +42,7 @@ void cobb::Texture2d::load()
     glEnableVertexAttribArray(1);
 
     //texture coords
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float),reinterpret_cast<void *>(7 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void *>(7 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -67,30 +64,23 @@ void cobb::Texture2d::load()
     stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(m_path, &m_width, &m_height, &nrChannels, 0);
     int colorType = nrChannels == 3 ? GL_RGB : GL_RGBA;
-    if(data) {
+    if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, colorType, m_width, m_height, 0, colorType, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
         cout << "Failed to load texture: " << m_path << endl;
     }
 
-    m_shader->use();
-
     stbi_image_free(data);
-
-
 }
 
-cobb::Texture2d::~Texture2d()
-{
+cobb::Texture2d::~Texture2d() {
     glDeleteVertexArrays(1, getVAO());
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 }
 
-void cobb::Texture2d::bind()
-{
-
+void cobb::Texture2d::bind() {
     glBindTexture(GL_TEXTURE_2D, m_id);
     /*if(selectedTexture != m_id) {
 
@@ -99,20 +89,13 @@ void cobb::Texture2d::bind()
     }*/
 }
 
-void cobb::Texture2d::draw()
-{
+void cobb::Texture2d::draw() {
     //bind();
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-cobb::Shader *cobb::Texture2d::getShader()
-{
-    return m_shader;
-}
-
-void cobb::Texture2d::loadVertices(float *positions)
-{
+void cobb::Texture2d::loadVertices(float *positions) {
     // corners (top right, bottom right, bottom left, top left) (4)
     // positions (xyz) (3)
     // color (rgba) (4)
@@ -154,21 +137,16 @@ void cobb::Texture2d::loadVertices(float *positions)
     vertices[33] = 1.0f; //top left a
     vertices[34] = 0.0f; //texture top left x
     vertices[35] = 1.0f; //texture top left y;
-
 }
 
-unsigned int cobb::Texture2d::getId()
-{
+unsigned int cobb::Texture2d::getId() {
     return m_id;
 }
 
-unsigned int* cobb::Texture2d::getVAO()
-{
+unsigned int *cobb::Texture2d::getVAO() {
+    if (VAO == -1) {
+        glGenVertexArrays(1, &VAO);
+    }
+
     return &VAO;
 }
-
-
-
-
-
-
