@@ -21,16 +21,19 @@ cobb::Texture2d::Texture2d(const string &path, int filterMode, int wrapMode, flo
 }
 
 void cobb::Texture2d::load() {
-    glGenVertexArrays(1, &VAO);
+    /*glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    glGenBuffers(1, &EBO);*/
+    getVAO();
+    getVBO();
+    getEBO();
 
 
     glBindVertexArray(*getVAO());
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *getEBO());
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //coordinates
@@ -76,8 +79,8 @@ void cobb::Texture2d::load() {
 
 cobb::Texture2d::~Texture2d() {
     glDeleteVertexArrays(1, getVAO());
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    glDeleteBuffers(1, getVBO());
+    glDeleteBuffers(1, getEBO());
 }
 
 void cobb::Texture2d::bind() {
@@ -149,4 +152,20 @@ unsigned int *cobb::Texture2d::getVAO() {
     }
 
     return &VAO;
+}
+
+unsigned int *cobb::Texture2d::getEBO() {
+    if (EBO == -1) {
+        glGenBuffers(1, &EBO);
+    }
+
+    return &EBO;
+}
+
+unsigned int *cobb::Texture2d::getVBO() {
+    if (VBO == -1) {
+        glGenBuffers(1, &VBO);
+    }
+
+    return &VBO;
 }
