@@ -11,11 +11,12 @@
 #include "cobb/texture2d.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
-
-#include "ew/external/stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace cobb;
-
+using namespace glm;
 
 
 int main() {
@@ -44,7 +45,7 @@ int main() {
     auto testShader = Shader("assets/testing/testing");
     testShader.use();
     testShader.setInt("tex", 0);
-    testShader.setVec2("dims", window.SCREEN_WIDTH, window.SCREEN_HEIGHT);
+    testShader.setVec2("dims", vec2(cobb::Window::SCREEN_WIDTH, cobb::Window::SCREEN_HEIGHT));
     float screenCorners[] = {1, 1, 1, -1, -1, -1, -1, 1};
     Texture2d errorTexture = Texture2d("assets/assignment2/bg.png", GL_LINEAR, GL_REPEAT, screenCorners);
     glBindVertexArray(*Texture2d::getVAO());
