@@ -9,6 +9,9 @@
 
 cobb::Window::Window(const string& title) {
     window = nullptr;
+    _uptime = 0;
+    _title = title;
+    _frames = 0;
     printf("Initializing...");
     if (!glfwInit()) {
         printf("GLFW failed to init!");
@@ -24,5 +27,19 @@ cobb::Window::Window(const string& title) {
         printf("GLAD Failed to load GL headers");
         return;
     }
+    glfwSwapInterval(0);
     glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
 }
+
+void cobb::Window::update() {
+    //show fps/uptime in window title
+    if(static_cast<int>(glfwGetTime()) > _uptime) {
+        glfwSetWindowTitle(window, (_title + " | FPS: " + to_string(_frames) + " | " + to_string(_uptime)+"s").c_str());
+        _frames = 0;
+        _uptime++;
+    }
+    _frames++;
+    //Clear framebuffer
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+

@@ -20,6 +20,11 @@ namespace cobb {
         GLFWwindow* window;
 
         explicit Window(const string& title);
+        void update();
+    private:
+        string _title;
+        int _uptime;
+        int _frames;
     };
 }
 

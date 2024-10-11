@@ -25,13 +25,13 @@ int main() {
 
 
     //DRAW SQUARE
-    auto breadShader = Shader("assets/assignment2/bread");
+    auto breadShader = Shader("assets/assignment2/bread.vert", "assets/assignment2/bread.frag");
     breadShader.use();
     breadShader.setInt("tex", 0);
     float breadPositions[] = {0.5f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f};
     Texture2d bread = Texture2d("assets/assignment2/bread.png", GL_NEAREST, GL_REPEAT, breadPositions);
 
-    auto bgShader = Shader("assets/assignment2/bg");
+    auto bgShader = Shader("assets/assignment2/bg.vert", "assets/assignment2/bg.frag");
     bgShader.use();
     bgShader.setInt("tex", 0);
     bgShader.setInt("tex2", 1);
@@ -50,6 +50,7 @@ int main() {
         //Drawing happens here!
         const auto time = static_cast<float>(glfwGetTime());
 
+
         bgShader.use();
 
         glActiveTexture(GL_TEXTURE0);
@@ -66,9 +67,6 @@ int main() {
 
         breadShader.setFloat("time", time);
         bread.draw();
-
-
-
         glfwSwapBuffers(window.window);
     }
     printf("Shutting down...");
