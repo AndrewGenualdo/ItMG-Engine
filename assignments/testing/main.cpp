@@ -8,7 +8,7 @@
 
 #include "cobb/shader.hpp"
 #include "cobb/window.hpp"
-#include "cobb/texture2d.hpp"
+#include "cobb/objects/2d/texture2d.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>

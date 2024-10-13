@@ -12,7 +12,7 @@ cobb::Window::Window(const string& title) {
     _uptime = 0;
     _title = title;
     _frames = 0;
-    printf("Initializing...");
+    cout << "Initializing Window..." << endl;
     if (!glfwInit()) {
         printf("GLFW failed to init!");
         return;
@@ -29,17 +29,27 @@ cobb::Window::Window(const string& title) {
     }
     glfwSwapInterval(0);
     glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
 }
 
-void cobb::Window::update() {
+float cobb::Window::update() {
     //show fps/uptime in window title
-    if(static_cast<int>(glfwGetTime()) > _uptime) {
+    const auto time = static_cast<float>(glfwGetTime());
+    const float deltaTime = time - _time;
+    _time = time;
+    if(static_cast<int>(_time) > _uptime) {
         glfwSetWindowTitle(window, (_title + " | FPS: " + to_string(_frames) + " | " + to_string(_uptime)+"s").c_str());
         _frames = 0;
         _uptime++;
     }
     _frames++;
+
     //Clear framebuffer
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    return deltaTime;
+}
+
+float cobb::Window::getTime() const {
+    return _time;
 }
 

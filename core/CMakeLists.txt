@@ -20,8 +20,14 @@ add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/shader.hpp
         cobb/window.cpp
         cobb/window.hpp
-        cobb/texture2d.cpp
-        cobb/texture2d.hpp)
+        cobb/objects/2d/texture2d.cpp
+        cobb/objects/2d/texture2d.hpp
+        cobb/objects/3d/cube.cpp
+        cobb/objects/3d/cube.hpp
+        cobb/objects/3d/camera.cpp
+        cobb/objects/3d/camera.hpp
+        cobb/objects/3d/object.cpp
+        cobb/objects/3d/object.hpp)
 
 find_package(OpenGL REQUIRED)
 

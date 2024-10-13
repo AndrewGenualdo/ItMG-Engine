@@ -8,7 +8,7 @@
 
 #include "cobb/shader.hpp"
 #include "cobb/window.hpp"
-#include "cobb/texture2d.hpp"
+#include "cobb/objects/2d/texture2d.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -20,7 +20,7 @@ using namespace cobb;
 
 int main() {
 
-    const auto window = Window("Hello □");
+    Window window = Window("Hello □");
 
 
 
@@ -44,9 +44,8 @@ int main() {
     //Render loop
     while (!glfwWindowShouldClose(window.window)) {
         glfwPollEvents();
+        window.update();
 
-        //Clear framebuffer
-        glClear(GL_COLOR_BUFFER_BIT);
         //Drawing happens here!
         const auto time = static_cast<float>(glfwGetTime());
 
