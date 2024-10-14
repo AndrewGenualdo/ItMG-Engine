@@ -60,16 +60,8 @@ mat4 translate(const float x, const float y, const float z) {
     return m;
 }
 
-mat4 lookAt(vec3 c, vec3 t, vec3 up) {
-    vec3 f = normalize(t - c);
-    vec3 r = normalize(cross(f, up));
-    vec3 u = normalize(cross(r, f));
-    mat4 m = mat4();
-    return m;
-}
-
 //position = Camera position
-//rotation = Camera direction
+//_rotation = Camera direction
 //scale = Camera zoom?
 
 static Camera camera;
@@ -122,8 +114,8 @@ void settle() {
 void clearLine(int line) {
     lineClears++;
     for(int i=0;i<10;i++) {
-        blockList[line * 10 + i].rotation = vec3(0);
-        blockList[line * 10 + i].scale = vec3(1);
+        blockList[line * 10 + i]._rotation = vec3(0);
+        blockList[line * 10 + i]._scale = vec3(1);
         blockList[line * 10 + i].exists = false;
     }
     for(int i=10;i<BLOCK_COUNT;i++) {
@@ -197,7 +189,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+void mouse_position_callback(GLFWwindow* window, double xpos, double ypos) {
     camera.handleMouse(xpos, ypos);
 }
 
@@ -211,18 +203,16 @@ int main() {
     auto window = Window("THREEDEE");
     glfwSetKeyCallback(window.window, key_callback);
     glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window.window, mouse_callback);
+    glfwSetCursorPosCallback(window.window, mouse_position_callback);
     glfwSetScrollCallback(window.window, scroll_callback);
     glfwSwapInterval(1);
 
     auto shader = Shader("assets/assignment4/assignment4");
     shader.use();
 
-    //this is a picture of my friend from 5th grade and I though it was funny (don't worry, I asked him)
+    //this is a picture of my friend from 5th grade (ish) and I though it was funny (don't worry, I asked him)
     Cube bread = Cube("assets/assignment4/owen.jpg", GL_NEAREST);
     bread.bind();
-    //glBindVertexArray(*Texture2d::getVAO());
-
 
     shader.use();
     shader.setInt("tex", 0);
@@ -231,12 +221,12 @@ int main() {
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(*Cube::getVAO());
 
-    camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 45.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
+    camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 60.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
 
     for(int i=0; i < BLOCK_COUNT; i++) {
         blockList[i] = Object();
         vec2 world = toWorld(i);
-        blockList[i].position = vec3(world.x - 5.0f, world.y, 0);
+        blockList[i]._position = vec3(world.x - 5.0f, world.y, 0);
     }
 
     const int randomBlockCount = 100;
@@ -250,9 +240,9 @@ int main() {
 
     //Render loop
     while (!glfwWindowShouldClose(window.window)) {
+        glfwPollEvents();
         float deltaTime = window.update();
         float time = window.getTime();
-        glfwPollEvents();
 
 
         const float tickLength = static_cast<float>(pow(0.95f * pow(0.99f, static_cast<int>(time - lastRestart - pauseDuration)), lineClears)) * 0.5f;
@@ -275,26 +265,26 @@ int main() {
                 continue;
             }
 
-            mat4 t = translate(blockList[i].position.x, blockList[i].position.y, blockList[i].position.z);
-            mat4 r = rotate(radians(blockList[i].rotation.x), radians(blockList[i].rotation.y), radians(blockList[i].rotation.z));
-            mat4 s = scale(blockList[i].scale.x, blockList[i].scale.y, blockList[i].scale.z);
+            mat4 t = translate(blockList[i]._position.x, blockList[i]._position.y, blockList[i]._position.z);
+            mat4 r = rotate(radians(blockList[i]._rotation.x), radians(blockList[i]._rotation.y), radians(blockList[i]._rotation.z));
+            mat4 s = scale(blockList[i]._scale.x, blockList[i]._scale.y, blockList[i]._scale.z);
 
             if(activeBlock == -2) {
                 float clearTime = time - clearStart;
                 if(i / 10 == clearLineId) {
                     if(clearTime < 1.5f) {
-                        blockList[i].rotation.z = mod(time * 1000, 360.0f);
-                        blockList[i].rotation.x = mod(time * 1000, 360.0f);
+                        blockList[i]._rotation.z = mod(time * 1000, 360.0f);
+                        blockList[i]._rotation.x = mod(time * 1000, 360.0f);
                         if(clearTime >= 1.0f) {
                             float scale = (0.5f - (clearTime - 1.0f)) * 2.5f;
-                            blockList[i].scale = vec3(scale, scale, scale);
+                            blockList[i]._scale = vec3(scale, scale, scale);
                         }
                     } else if(clearTime >= 1.5f) {
                         clearLine(clearLineId);
                     }
                 } else if(clearTime > 1.0f) {
                     float shift = (clearTime - 1.0f) * 2.0f;
-                    t = translate(blockList[i].position.x, blockList[i].position.y - shift, blockList[i].position.z);
+                    t = translate(blockList[i]._position.x, blockList[i]._position.y - shift, blockList[i]._position.z);
                 }
             }
             //t * r * s = model matrix
@@ -305,22 +295,23 @@ int main() {
 
 
         for(int i=0;i<randomBlockCount;i++) {
+            if(!camera.lock) {
+                randomBlocks[i]._position.x = clamp(randomBlocks[i]._position.x + ew::RandomRange(-0.1f, 0.1f), -15.0f, 15.0f);
+                randomBlocks[i]._position.y = clamp(randomBlocks[i]._position.y + ew::RandomRange(-0.1f, 0.1f), -15.0f, 15.0f);
+                randomBlocks[i]._position.z = clamp(randomBlocks[i]._position.z + ew::RandomRange(-0.1f, 0.1f), 50.0f, 80.0f);
 
-            randomBlocks[i].position.x = clamp(randomBlocks[i].position.x + ew::RandomRange(-0.1f, 0.1f), -15.0f, 15.0f);
-            randomBlocks[i].position.y = clamp(randomBlocks[i].position.y + ew::RandomRange(-0.1f, 0.1f), -15.0f, 15.0f);
-            randomBlocks[i].position.z = clamp(randomBlocks[i].position.z + ew::RandomRange(-0.1f, 0.1f), 50.0f, 80.0f);
+                randomBlocks[i]._scale.x = clamp(randomBlocks[i]._scale.x + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
+                randomBlocks[i]._scale.y = clamp(randomBlocks[i]._scale.y + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
+                randomBlocks[i]._scale.z = clamp(randomBlocks[i]._scale.z + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
 
-            randomBlocks[i].scale.x = clamp(randomBlocks[i].scale.x + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
-            randomBlocks[i].scale.y = clamp(randomBlocks[i].scale.y + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
-            randomBlocks[i].scale.z = clamp(randomBlocks[i].scale.z + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
+                randomBlocks[i]._rotation.x += ew::RandomRange(-3.0f, 3.0f);
+                randomBlocks[i]._rotation.y += ew::RandomRange(-3.0f, 3.0f);
+                randomBlocks[i]._rotation.z += ew::RandomRange(-3.0f, 3.0f);
+            }
 
-            randomBlocks[i].rotation.x += ew::RandomRange(-3.0f, 3.0f);
-            randomBlocks[i].rotation.y += ew::RandomRange(-3.0f, 3.0f);
-            randomBlocks[i].rotation.z += ew::RandomRange(-3.0f, 3.0f);
-
-            mat4 t = translate(randomBlocks[i].position.x, randomBlocks[i].position.y, randomBlocks[i].position.z);
-            mat4 r = rotate(radians(randomBlocks[i].rotation.x), radians(randomBlocks[i].rotation.y), radians(randomBlocks[i].rotation.z));
-            mat4 s = scale(randomBlocks[i].scale.x, randomBlocks[i].scale.y, randomBlocks[i].scale.z);
+            mat4 t = translate(randomBlocks[i]._position.x, randomBlocks[i]._position.y, randomBlocks[i]._position.z);
+            mat4 r = rotate(radians(randomBlocks[i]._rotation.x), radians(randomBlocks[i]._rotation.y), radians(randomBlocks[i]._rotation.z));
+            mat4 s = scale(randomBlocks[i]._scale.x, randomBlocks[i]._scale.y, randomBlocks[i]._scale.z);
             shader.setMat4("model", t * r * s);
             bread.draw();
         }

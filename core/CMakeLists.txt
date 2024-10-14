@@ -27,7 +27,13 @@ add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/objects/3d/camera.cpp
         cobb/objects/3d/camera.hpp
         cobb/objects/3d/object.cpp
-        cobb/objects/3d/object.hpp)
+        cobb/objects/3d/object.hpp
+        cobb/objects/1d/line.cpp
+        cobb/objects/1d/line.hpp)
+
+add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/cobb/objects/1d/assets/
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)
 
 find_package(OpenGL REQUIRED)
 
@@ -36,3 +42,5 @@ target_link_libraries(core PUBLIC IMGUI glm)
 install (TARGETS core DESTINATION lib)
 install (FILES ${CORE_INC} DESTINATION include/core)
 
+#Trigger asset copy when testing is built
+add_dependencies(core copyAssetsLine)

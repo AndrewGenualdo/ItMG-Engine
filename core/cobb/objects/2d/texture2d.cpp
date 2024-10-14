@@ -70,9 +70,9 @@ void cobb::Texture2d::load() {
 }
 
 cobb::Texture2d::~Texture2d() {
-    glDeleteVertexArrays(1, getVAO());
-    glDeleteBuffers(1, getVBO());
-    glDeleteBuffers(1, getEBO());
+    //glDeleteVertexArrays(1, getVAO());
+    //glDeleteBuffers(1, getVBO());
+    //glDeleteBuffers(1, getEBO());
 }
 
 void cobb::Texture2d::bind() {

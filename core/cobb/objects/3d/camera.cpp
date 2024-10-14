@@ -5,19 +5,19 @@
 #include "camera.hpp"
 
 Camera::Camera() {
-    load(vec3(0), vec3(0), 45.0f, vec2(1920, 1080));
+    load(vec3(0), vec3(0), 60.0f, vec2(1920, 1080));
 }
 
 Camera::Camera(vec2 screenDims) {
-    load(vec3(0), vec3(0), 45.0f, screenDims);
+    load(vec3(0), vec3(0), 60.0f, screenDims);
 }
 
 Camera::Camera(vec3 position, vec2 screenDims) {
-    load(position, vec3(0), 45.0f, screenDims);
+    load(position, vec3(0), 60.0f, screenDims);
 }
 
 Camera::Camera(vec3 position, vec3 lookingAt, vec2 screenDims) {
-    load(position, lookingAt, 45.0f, screenDims);
+    load(position, lookingAt, 60.0f, screenDims);
 }
 
 Camera::Camera(vec3 position, vec3 lookingAt, float fov, vec2 screenDims) {
@@ -25,24 +25,27 @@ Camera::Camera(vec3 position, vec3 lookingAt, float fov, vec2 screenDims) {
 }
 
 void Camera::update(GLFWwindow* window, float deltaTime) {
+    if(lock) return;
     //angle
     vec3 dir;
-    dir.x = cos(radians(rotation.z)) * cos(radians(rotation.y));
-    dir.y = sin(radians(rotation.y));
-    dir.z = sin(radians(rotation.z)) * cos(radians(rotation.y));
+    dir.x = cos(radians(_rotation.z)) * cos(radians(_rotation.y));
+    dir.y = sin(radians(_rotation.y));
+    dir.z = sin(radians(_rotation.z)) * cos(radians(_rotation.y));
     cameraFront = normalize(dir);
 
     view = mat4(1);
-    view = glm::lookAt(position, position + cameraFront, up);
+    view = glm::lookAt(_position, _position + cameraFront, up);
 
     //position
-    float speedMult = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 25.0f : 10.0f;
-    if(glfwGetKey(window, GLFW_KEY_W)) position += deltaTime * speedMult * cameraFront;
-    if(glfwGetKey(window, GLFW_KEY_S)) position -= deltaTime * speedMult * cameraFront;
-    if(glfwGetKey(window, GLFW_KEY_D)) position += deltaTime * speedMult * normalize(cross(cameraFront, up));
-    if(glfwGetKey(window, GLFW_KEY_A)) position -= deltaTime * speedMult * normalize(cross(cameraFront, up));
-    if(glfwGetKey(window, GLFW_KEY_Q) || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) position -= deltaTime * speedMult * up;
-    if(glfwGetKey(window, GLFW_KEY_E) || glfwGetKey(window, GLFW_KEY_SPACE)) position += deltaTime * speedMult * up;
+    float speedMult = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 25.0f : glfwGetKey(window, GLFW_KEY_LEFT_ALT) ? 1.0f : 10.0f;
+    //if(glfwGetKey(window, GLFW_KEY_W)) position += deltaTime * speedMult * cameraFront;
+    //if(glfwGetKey(window, GLFW_KEY_S)) position -= deltaTime * speedMult * cameraFront;
+    if(glfwGetKey(window, GLFW_KEY_W)) _position += deltaTime * speedMult * normalize(cross(up, cross(cameraFront, up)));
+    if(glfwGetKey(window, GLFW_KEY_S)) _position -= deltaTime * speedMult * normalize(cross(up, cross(cameraFront, up)));
+    if(glfwGetKey(window, GLFW_KEY_D)) _position += deltaTime * speedMult * normalize(cross(cameraFront, up));
+    if(glfwGetKey(window, GLFW_KEY_A)) _position -= deltaTime * speedMult * normalize(cross(cameraFront, up));
+    if(glfwGetKey(window, GLFW_KEY_Q) || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) _position -= deltaTime * speedMult * up;
+    if(glfwGetKey(window, GLFW_KEY_E) || glfwGetKey(window, GLFW_KEY_SPACE)) _position += deltaTime * speedMult * up;
 
     //fov
     proj = mat4(1);
@@ -50,8 +53,8 @@ void Camera::update(GLFWwindow* window, float deltaTime) {
 }
 
 void Camera::reset() {
-    position = startPos;
-    rotation = startRot;
+    _position = startPos;
+    _rotation = startRot;
 }
 
 void Camera::handleMouse(double xPos, double yPos) {
@@ -72,23 +75,27 @@ void Camera::handleMouse(double xPos, double yPos) {
         const float sensitivity = 0.1f;
         xOff *= sensitivity;
         yOff *= sensitivity;
-        rotation.z += xOff;
-        rotation.y += yOff;
+        _rotation.z += xOff;
+        _rotation.y += yOff;
     }
 
-    if(rotation.y > 89.0f) {
-        rotation.y = 89.0f;
+    if(_rotation.y > 89.0f) {
+        _rotation.y = 89.0f;
     }
-    if(rotation.y < -89.0f) {
-        rotation.y = -89.0f;
+    if(_rotation.y < -89.0f) {
+        _rotation.y = -89.0f;
     }
 }
 
 void Camera::handleKeyboard(int key, int action) {
     if(action == GLFW_PRESS) {
-        if(key == GLFW_KEY_P) {
-            cout << "Position: " << position.x << " " << position.y << " " << position.z << endl;
-            cout << "Rotation: " << rotation.x << " " << rotation.y << " " << rotation.z << endl;
+        if(key == GLFW_KEY_ESCAPE) {
+            lock = !lock;
+        } else if(key == GLFW_KEY_F1) {
+            ui = !ui;
+        } else if(key == GLFW_KEY_P) {
+            cout << "Position: " << _position.x << " " << _position.y << " " << _position.z << endl;
+            cout << "Rotation: " << _rotation.x << " " << _rotation.y << " " << _rotation.z << endl;
         }
     }
 }
@@ -104,13 +111,14 @@ void Camera::load(vec3 pos, vec3 rot, float fov, vec2 screenDims) {
     lastX = screenDims.x / 2.0f;
     lastY = screenDims.y / 2.0f;
     startPos = pos;
-    position = pos;
+    _position = pos;
     startRot = rot;
-    rotation = rot;
+    _rotation = rot;
     cameraFront = vec3(0, 0, -1);
     view = mat4(1);
     lock = false;
     FOV = fov;
     proj = mat4(1);
     proj = perspective(radians(fov), (float) Window::SCREEN_WIDTH / (float) Window::SCREEN_HEIGHT, 0.1f, 1000.0f);
+    ui = true;
 }

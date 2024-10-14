@@ -17,8 +17,8 @@ cobb::Cube::Cube(const string &path, int filterMode) {
 }
 
 cobb::Cube::~Cube() {
-    glDeleteVertexArrays(1, getVAO());
-    glDeleteBuffers(1, getVBO());
+    //glDeleteVertexArrays(1, getVAO());
+    //glDeleteBuffers(1, getVBO());
 }
 
 void cobb::Cube::load() {

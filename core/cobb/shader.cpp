@@ -9,6 +9,10 @@
 #include "../ew/external/glad.h"
 #include <glm/glm.hpp>
 
+cobb::Shader::Shader() {
+    ID = -348235985;
+}
+
 cobb::Shader::Shader(string shaderPath) {
     load(shaderPath+".vert", shaderPath+".frag");
 }
@@ -30,6 +34,7 @@ void cobb::Shader::load(string vertexPath, string fragmentPath) {
         //open the files
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
+
         stringstream vShaderStream, fShaderStream;
         //read file contents into streams
         vShaderStream << vShaderFile.rdbuf();
@@ -43,6 +48,7 @@ void cobb::Shader::load(string vertexPath, string fragmentPath) {
     } catch(ifstream::failure e) {
         //lol successfully is spelled wrong in the guide
         cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY:READ" << endl;
+
     }
 
     const char* vShaderCode = vertexCode.c_str();
@@ -111,6 +117,14 @@ void cobb::Shader::setFloat(const string &name, float value) const {
 
 void cobb::Shader::setVec2(const string &name, const glm::vec2 &value) const {
     glUniform2f(glGetUniformLocation(ID, name.c_str()), value.x, value.y);
+}
+
+void cobb::Shader::setVec3(const string &name, const glm::vec3 &value) const {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z);
+}
+
+void cobb::Shader::setVec4(const string &name, const glm::vec4 &value) const {
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z, value.w);
 }
 
 

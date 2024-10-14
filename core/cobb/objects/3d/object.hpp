@@ -18,13 +18,17 @@ using namespace glm;
 class Object
 {
 public:
-    vec3 position = vec3(0, 0, 0);
-    vec3 rotation = vec3(0, 0, 0);
-    vec3 scale = vec3(1, 1, 1);
+    vec3 _position = vec3(0, 0, 0);
+    vec3 _rotation = vec3(0, 0, 0);
+    vec3 _scale = vec3(1, 1, 1);
     bool exists = false;
 
     Object();
     Object(vec3 pos, vec3 rot, vec3 sca);
+
+    static mat4 scale(const float x, const float y, const float z);
+    static mat4 rotate(const float yaw, const float pitch, const float roll);
+    static mat4 translate(const float x, const float y, const float z);
 };
 
 

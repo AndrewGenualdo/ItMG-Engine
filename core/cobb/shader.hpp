@@ -17,6 +17,7 @@ namespace cobb {
 
         unsigned int ID; //the shader ID
 
+        Shader();
         Shader(string shaderPath);
         Shader(string vertexPath, string fragmentPath);
 
@@ -29,6 +30,8 @@ namespace cobb {
         void setInt(const string &name, int value) const;
         void setFloat(const string &name, float value) const;
         void setVec2(const string &name, const glm::vec2 &value) const;
+        void setVec3(const string &name, const glm::vec3 &value) const;
+        void setVec4(const string &name, const glm::vec4 &value) const;
         void setMat4(const string &name, const glm::mat4 &value) const;
 
     private:

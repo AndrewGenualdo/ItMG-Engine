@@ -18,11 +18,13 @@ using namespace glm;
 
 class Camera : public Object {
 public:
+    constexpr static vec3 right = vec3(1, 0, 0);
     constexpr static vec3 up = vec3(0, 1, 0);
     vec3 cameraFront;
     mat4 view;
     mat4 proj;
     bool lock;
+    bool ui;
     float FOV;
 
     Camera();
