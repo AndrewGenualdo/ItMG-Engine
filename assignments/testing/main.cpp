@@ -107,7 +107,7 @@ struct Plane {
         wires[0] = Line(pos, pos2, 1, color);
         if(pos.x == pos2.x) {
             wires[1] = Line(vec3(pos.x, pos2.y, pos.z), vec3(pos2.x, pos.y, pos2.z), 1, color);
-        } else if(pos.y == pos.y) {
+        } else if(pos.y == pos2.y) {
             wires[1] = Line(vec3(pos2.x, pos.y, pos.z), vec3(pos.x, pos2.y, pos2.z), 1, color);
         } else {
             wires[1] = Line(vec3(pos.x, pos.y, pos2.z), vec3(pos2.x, pos2.y, pos.z), 1, color);
@@ -294,12 +294,11 @@ int main()
         float time = window.getTime();
 
         camera.update(window.window, deltaTime);
+        lineShader->use();
+        lineShader->setMat4("viewProj", camera.proj * camera.view);
+        glBindVertexArray(*Line::getVAO());
 
         if(lineShader != nullptr && wireframeMode > 0) {
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
-
             for(int i=0;i<WORLD_SIZE;i++) {
                 if(!blocks[i].exists || length(vec2(blocks[i]._position.x, blocks[i]._position.z) - vec2(camera._position.x, camera._position.z)) > wireframeRadius) continue;
                 //Coord is just a vec3 but ints instead of floats
@@ -309,9 +308,9 @@ int main()
                 drawPlaneWithCheck(planes, coord.y, &blocks[i]._position, &camera);
                 drawPlaneWithCheck(planes, coord.z, &blocks[i]._position, &camera);
             }
-            vec3 temp = vec3(0);
-            Line(vec3(0), vec3(5), 1, vec4(1)).draw(&temp, &camera);
         }
+
+
 
 
 
@@ -362,19 +361,16 @@ int main()
 
             //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
             const float compassScale = 900.0f;
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
+
             vec3 p1 = camera.cameraFront * vec3(compassScale) + camera._position;
             vec3 p2 = camera.cameraFront * vec3(compassScale) + camera._position;
 
             Line xAxis = Line(p1, p2 + vec3(0.05f * compassScale, 0, 0), 1, vec4(1, 0, 0, 1));
             Line yAxis = Line(p1, p2 + vec3(0, 0.05f * compassScale, 0), 1, vec4(0, 1, 0, 1)); //up
             Line zAxis = Line(p1, p2 + vec3(0, 0, 0.05f * compassScale), 1, vec4(0, 0, 1, 1));
-
-            xAxis.draw(&camera);
-            yAxis.draw(&camera);
-            zAxis.draw(&camera);
+            xAxis.draw(&camera, true);
+            yAxis.draw(&camera, false);
+            zAxis.draw(&camera, false);
 
             glEnable(GL_DEPTH_TEST);
         }

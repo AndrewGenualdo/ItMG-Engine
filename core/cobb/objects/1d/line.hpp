@@ -80,15 +80,21 @@ namespace cobb {
         }
 
         void draw(Camera *camera) {
-
-
             //lineShader->use();
-            lineShader->setMat4("model", Object::translate(_start.x, _start.y, _start.z) * Object::scale(_end.x - _start.x, _end.y - _start.y, _end.z - _start.z));
+
             //lineShader->setMat4("view", camera->view);
             //lineShader->setMat4("proj", camera->proj);
             //lineShader->setMat4("viewProj", camera->proj * camera->view);
-            lineShader->setVec4("color", camera->lock ? _color * vec4(0.5f, 0.5f, 0.5f, 1.0f) : _color);
+                draw(camera, false);
+        }
 
+        void draw(Camera *camera, bool bind) {
+            if(bind) {
+                lineShader->use();
+                glBindVertexArray(*getVAO());
+            }
+            lineShader->setMat4("model", Object::translate(_start.x, _start.y, _start.z) * Object::scale(_end.x - _start.x, _end.y - _start.y, _end.z - _start.z));
+            lineShader->setVec4("color", camera->lock ? _color * vec4(0.5f, 0.5f, 0.5f, 1.0f) : _color);
             glDrawArrays(GL_LINES, 0, 2);
         }
 
