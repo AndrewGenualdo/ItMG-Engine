@@ -20,7 +20,7 @@ class Camera : public Object {
 public:
     constexpr static vec3 right = vec3(1, 0, 0);
     constexpr static vec3 up = vec3(0, 1, 0);
-    vec3 cameraFront;
+    vec3 forward;
     mat4 view;
     mat4 proj;
     bool lock;

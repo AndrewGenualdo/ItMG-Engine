@@ -29,10 +29,18 @@ add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/objects/3d/object.cpp
         cobb/objects/3d/object.hpp
         cobb/objects/1d/line.cpp
-        cobb/objects/1d/line.hpp)
+        cobb/objects/1d/line.hpp
+        cobb/objects/1d/fadeLine.cpp
+        cobb/objects/1d/fadeLine.hpp
+        cobb/objects/2d/triangle.cpp
+        cobb/objects/2d/triangle.hpp
+        cobb/objects/2d/fadeTriangle.cpp
+        cobb/objects/2d/fadeTriangle.h
+)
 
 add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/cobb/objects/1d/assets/
+        ${CMAKE_CURRENT_SOURCE_DIR}/cobb/objects/2d/assets/
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)
 
 find_package(OpenGL REQUIRED)

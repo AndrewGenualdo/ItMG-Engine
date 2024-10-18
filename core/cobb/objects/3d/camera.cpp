@@ -31,25 +31,29 @@ void Camera::update(GLFWwindow* window, float deltaTime) {
     dir.x = cos(radians(_rotation.z)) * cos(radians(_rotation.y));
     dir.y = sin(radians(_rotation.y));
     dir.z = sin(radians(_rotation.z)) * cos(radians(_rotation.y));
-    cameraFront = normalize(dir);
+    forward = normalize(dir);
 
     view = mat4(1);
-    view = glm::lookAt(_position, _position + cameraFront, up);
+    view = glm::lookAt(_position, _position + forward, up);
 
     //position
     float speedMult = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 25.0f : glfwGetKey(window, GLFW_KEY_LEFT_ALT) ? 1.0f : 10.0f;
-    //if(glfwGetKey(window, GLFW_KEY_W)) position += deltaTime * speedMult * cameraFront;
-    //if(glfwGetKey(window, GLFW_KEY_S)) position -= deltaTime * speedMult * cameraFront;
-    if(glfwGetKey(window, GLFW_KEY_W)) _position += deltaTime * speedMult * normalize(cross(up, cross(cameraFront, up)));
-    if(glfwGetKey(window, GLFW_KEY_S)) _position -= deltaTime * speedMult * normalize(cross(up, cross(cameraFront, up)));
-    if(glfwGetKey(window, GLFW_KEY_D)) _position += deltaTime * speedMult * normalize(cross(cameraFront, up));
-    if(glfwGetKey(window, GLFW_KEY_A)) _position -= deltaTime * speedMult * normalize(cross(cameraFront, up));
+    //if(glfwGetKey(window, GLFW_KEY_W)) position += deltaTime * speedMult * forward;
+    //if(glfwGetKey(window, GLFW_KEY_S)) position -= deltaTime * speedMult * forward;
+    if(glfwGetKey(window, GLFW_KEY_W)) _position += deltaTime * speedMult * normalize(cross(up, cross(forward, up)));
+    if(glfwGetKey(window, GLFW_KEY_S)) _position -= deltaTime * speedMult * normalize(cross(up, cross(forward, up)));
+    if(glfwGetKey(window, GLFW_KEY_D)) _position += deltaTime * speedMult * normalize(cross(forward, up));
+    if(glfwGetKey(window, GLFW_KEY_A)) _position -= deltaTime * speedMult * normalize(cross(forward, up));
     if(glfwGetKey(window, GLFW_KEY_Q) || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) _position -= deltaTime * speedMult * up;
     if(glfwGetKey(window, GLFW_KEY_E) || glfwGetKey(window, GLFW_KEY_SPACE)) _position += deltaTime * speedMult * up;
 
     //fov
     proj = mat4(1);
     proj = perspective(radians(FOV), (float) Window::SCREEN_WIDTH / (float) Window::SCREEN_HEIGHT, 0.1f, 1000.0f);
+    /*
+
+     */
+
 }
 
 void Camera::reset() {
@@ -114,7 +118,7 @@ void Camera::load(vec3 pos, vec3 rot, float fov, vec2 screenDims) {
     _position = pos;
     startRot = rot;
     _rotation = rot;
-    cameraFront = vec3(0, 0, -1);
+    forward = vec3(0, 0, -1);
     view = mat4(1);
     lock = false;
     FOV = fov;

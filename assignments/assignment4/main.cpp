@@ -8,6 +8,7 @@
 #include "cobb/shader.hpp"
 #include "cobb/window.hpp"
 #include "cobb/objects/3d/cube.hpp"
+#include "cobb/objects/1d/line.hpp"
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
@@ -115,7 +116,7 @@ void clearLine(int line) {
     lineClears++;
     for(int i=0;i<10;i++) {
         blockList[line * 10 + i]._rotation = vec3(0);
-        blockList[line * 10 + i]._scale = vec3(1);
+        blockList[line * 10 + i]._scale = vec3(0.5f);
         blockList[line * 10 + i].exists = false;
     }
     for(int i=10;i<BLOCK_COUNT;i++) {
@@ -159,15 +160,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if(action == GLFW_PRESS) {
         if(key == GLFW_KEY_ESCAPE) /*glfwSetWindowShouldClose(window, GLFW_TRUE);*/ {
             if(camera.lock) {
-                camera.lock = false;
-                glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                pauseDuration+= glfwGetTime() - pauseStart;
-            } else {
-                camera.lock = true;
                 glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 pauseStart = glfwGetTime();
+            } else {
+                glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                pauseDuration+= glfwGetTime() - pauseStart;
             }
         }
 
@@ -205,7 +204,6 @@ int main() {
     glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window.window, mouse_position_callback);
     glfwSetScrollCallback(window.window, scroll_callback);
-    glfwSwapInterval(1);
 
     auto shader = Shader("assets/assignment4/assignment4");
     shader.use();
@@ -227,13 +225,14 @@ int main() {
         blockList[i] = Object();
         vec2 world = toWorld(i);
         blockList[i]._position = vec3(world.x - 5.0f, world.y, 0);
+        blockList[i]._scale = vec3(0.5f);
     }
 
-    const int randomBlockCount = 100;
+    const int randomBlockCount = 25;
     Object randomBlocks[randomBlockCount];
 
     for(int i=0;i<randomBlockCount;i++) {
-        randomBlocks[i] = Object(vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, 50 + ew::RandomRange(0, 30)), vec3(0), vec3(1));
+        randomBlocks[i] = Object(vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, 50 + ew::RandomRange(0, 30)), vec3(ew::RandomRange(0, 360), ew::RandomRange(0, 360), ew::RandomRange(0, 360)), vec3(ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f)));
     }
 
     float lastTick = 0.0f;
@@ -252,6 +251,8 @@ int main() {
         }
 
         bread.bind();
+        shader.use();
+        glBindVertexArray(*Cube::getVAO());
         shader.setBool("gameOver", activeBlock == -3);
         shader.setBool("lock", camera.lock);
 
@@ -277,7 +278,7 @@ int main() {
                         blockList[i]._rotation.x = mod(time * 1000, 360.0f);
                         if(clearTime >= 1.0f) {
                             float scale = (0.5f - (clearTime - 1.0f)) * 2.5f;
-                            blockList[i]._scale = vec3(scale, scale, scale);
+                            blockList[i]._scale = vec3(scale * 0.5f, scale * 0.5f, scale * 0.5f);
                         }
                     } else if(clearTime >= 1.5f) {
                         clearLine(clearLineId);
@@ -296,17 +297,17 @@ int main() {
 
         for(int i=0;i<randomBlockCount;i++) {
             if(!camera.lock) {
-                randomBlocks[i]._position.x = clamp(randomBlocks[i]._position.x + ew::RandomRange(-0.1f, 0.1f), -15.0f, 15.0f);
-                randomBlocks[i]._position.y = clamp(randomBlocks[i]._position.y + ew::RandomRange(-0.1f, 0.1f), -15.0f, 15.0f);
-                randomBlocks[i]._position.z = clamp(randomBlocks[i]._position.z + ew::RandomRange(-0.1f, 0.1f), 50.0f, 80.0f);
+                randomBlocks[i]._position.x = clamp(randomBlocks[i]._position.x + ew::RandomRange(-10.0f, 10.0f) * deltaTime, -15.0f, 15.0f);
+                randomBlocks[i]._position.y = clamp(randomBlocks[i]._position.y + ew::RandomRange(-10.0f, 10.0f) * deltaTime, -15.0f, 15.0f);
+                randomBlocks[i]._position.z = clamp(randomBlocks[i]._position.z + ew::RandomRange(-10.0f, 10.0f) * deltaTime, 50.0f, 80.0f);
 
-                randomBlocks[i]._scale.x = clamp(randomBlocks[i]._scale.x + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
-                randomBlocks[i]._scale.y = clamp(randomBlocks[i]._scale.y + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
-                randomBlocks[i]._scale.z = clamp(randomBlocks[i]._scale.z + ew::RandomRange(-0.1f, 0.1f), 0.1f, 5.0f);
+                randomBlocks[i]._scale.x = clamp(randomBlocks[i]._scale.x + ew::RandomRange(-100.0f, 100.0f) * deltaTime, 0.1f, 5.0f);
+                randomBlocks[i]._scale.y = clamp(randomBlocks[i]._scale.y + ew::RandomRange(-100.0f, 100.0f) * deltaTime, 0.1f, 5.0f);
+                randomBlocks[i]._scale.z = clamp(randomBlocks[i]._scale.z + ew::RandomRange(-100.0f, 100.0f) * deltaTime, 0.1f, 5.0f);
 
-                randomBlocks[i]._rotation.x += ew::RandomRange(-3.0f, 3.0f);
-                randomBlocks[i]._rotation.y += ew::RandomRange(-3.0f, 3.0f);
-                randomBlocks[i]._rotation.z += ew::RandomRange(-3.0f, 3.0f);
+                randomBlocks[i]._rotation.x += ew::RandomRange(-1000.0f, 1000.0f) * deltaTime;
+                randomBlocks[i]._rotation.y += ew::RandomRange(-1000.0f, 1000.0f) * deltaTime;
+                randomBlocks[i]._rotation.z += ew::RandomRange(-1000.0f, 1000.0f) * deltaTime;
             }
 
             mat4 t = translate(randomBlocks[i]._position.x, randomBlocks[i]._position.y, randomBlocks[i]._position.z);
@@ -314,6 +315,30 @@ int main() {
             mat4 s = scale(randomBlocks[i]._scale.x, randomBlocks[i]._scale.y, randomBlocks[i]._scale.z);
             shader.setMat4("model", t * r * s);
             bread.draw();
+        }
+
+        if(camera.ui) {
+            glDisable(GL_DEPTH_TEST);
+
+            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
+            const float compassScale = 900.0f;
+
+            vec3 p = camera.forward * vec3(compassScale) + camera._position;
+
+            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
+            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
+            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
+
+            lineShader->use();
+            lineShader->setMat4("viewProj", camera.proj * camera.view);
+            glBindVertexArray(*Line::getVAO());
+
+            xAxis.draw(&camera);
+            yAxis.draw(&camera);
+            zAxis.draw(&camera);
+
+
+            glEnable(GL_DEPTH_TEST);
         }
 
 
