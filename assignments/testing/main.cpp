@@ -471,11 +471,12 @@ int mesh() {
     FadeLine::loadShader();
     Triangle::loadShader();
     FadeTriangle::loadShader();
-
+    glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     int length = 1;
-    int max = 25;
+    int max = 50;
     float drawDistance = 100.0f;
-    float mult = 0.1f;
+    float mult = 0.00001f;
     float highest = -999999999.0f;
     float lowest =   999999999.0f;
     MeshPoint *positions = new MeshPoint[max * max];
@@ -514,7 +515,8 @@ int mesh() {
 
         if(time > lastTick + 0.1f) {
             lastTick+=0.1f;
-            highest = -999999999.0f;
+            if(!camera.lock) {
+                highest = -999999999.0f;
             lowest =   999999999.0f;
             for(int i=0;i<max*max;i++) {
                 positions[i].set = false;
@@ -566,7 +568,7 @@ int mesh() {
 
                         triangles[t0ArrayPos].color = vec4(0, dist0 * 0.5f + 0.1f, dist0 - (dist0 * 0.5f) + 0.25f, 1);
 
-                        triangles[t1ArrayPos].p1 = vec3(x + 1, positions[arrayPos + 1].y, z);
+                        /*triangles[t1ArrayPos].p1 = vec3(x + 1, positions[arrayPos + 1].y, z);
                         triangles[t1ArrayPos].p2 = vec3(x + 1, positions[arrayPos + max + 1].y, z + 1);
                         triangles[t1ArrayPos].p3 = vec3(x + 0.5f, centerHeights[z * (max - 1) + x], z + 0.5f);
 
@@ -588,7 +590,7 @@ int mesh() {
 
                         float dist3 = (highest0 + highest) / (highest - lowest);
 
-                        triangles[t3ArrayPos].color = vec4(0, dist3 * 0.5f + 0.1f, dist3 - (dist3 * 0.5f) + 0.25f, 1);
+                        triangles[t3ArrayPos].color = vec4(0, dist3 * 0.5f + 0.1f, dist3 - (dist3 * 0.5f) + 0.25f, 1);*/
                     }
                 }
             }
@@ -624,6 +626,8 @@ int mesh() {
                 }
             }
         }
+            }
+
 
         camera.update(window.window, deltaTime);
 
@@ -712,7 +716,7 @@ int triangleTest() {
 
         triangleShader->use();
         triangleShader->setMat4("viewProj", camera.proj * camera.view);
-        Triangle triangle  = Triangle(vec3(0, sin(time*3), 0), vec3(1, 0, 0), vec3(0, sin(time*3), 1), vec4(1, 0, 0, 1));
+        Triangle triangle  = Triangle(vec3(0, 0, 0), vec3(1, sin(time*3), 0), vec3(0, cos(time*3), 1), vec4(1, 0, 0, 1));
         /*Triangle triangle2 = Triangle(vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1), vec4(0, 1, 0, 1));
         Triangle triangle3 = Triangle(vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1), vec4(0, 0, 1, 1));
         Triangle triangle4 = Triangle(vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1), vec4(1, 1, 0, 1));*/
@@ -756,7 +760,7 @@ constexpr int TRIANGLE_RUNCODE = 2;
 
 int main() {
 
-    int runCode = WORLD_RUNCODE;
+    int runCode = MESH_RUNCODE;
     switch(runCode) {
         case WORLD_RUNCODE: return world();
         case MESH_RUNCODE: return mesh();

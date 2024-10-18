@@ -64,7 +64,7 @@ namespace cobb {
             glBindVertexArray(*getVAO());
 
             glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
-            glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES_TRIANGLE), VERTICES_TRIANGLE, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES_TRIANGLE), VERTICES_TRIANGLE, GL_STATIC_DRAW);
 
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
             glEnableVertexAttribArray(0);
@@ -84,8 +84,14 @@ namespace cobb {
                     p1, p2, p3
             };
 
-            glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(dynamicVertices), dynamicVertices);
+            //glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
+            //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(dynamicVertices), dynamicVertices);
+            const vec3 side1 = normalize(p2 - p1);
+            const vec3 side2 = normalize(p3 - p1);
+            mat4 scale = mat4(1);
+            scale[0] = vec4(side1.x, side1.y, side1.z, 0);
+            scale[2] = vec4(side2.x, side2.y, side2.z, 0);
+            triangleShader->setMat4("model", Object::translate(p1.x, p1.y, p1.z) * scale);
             triangleShader->setVec4("color", camera->lock ? color * vec4(0.5f, 0.5f, 0.5f, 1.0f) : color);
             glDrawArrays(GL_TRIANGLES, 0, 3);
         }
