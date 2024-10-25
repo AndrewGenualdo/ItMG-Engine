@@ -47,9 +47,25 @@ void Camera::update(GLFWwindow* window, float deltaTime) {
     if(glfwGetKey(window, GLFW_KEY_Q) || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) _position -= deltaTime * speedMult * up;
     if(glfwGetKey(window, GLFW_KEY_E) || glfwGetKey(window, GLFW_KEY_SPACE)) _position += deltaTime * speedMult * up;
 
+    float n = 0.1f;
+    float f = 1000.0f;
     //fov
-    proj = mat4(1);
-    proj = perspective(radians(FOV), (float) Window::SCREEN_WIDTH / (float) Window::SCREEN_HEIGHT, 0.1f, 1000.0f);
+    //proj = mat4(1);
+    float ntan = 1.0f / tan(radians(FOV) / 2.0f);
+    float aspectRatio = static_cast<float>(Window::SCREEN_WIDTH) / static_cast<float>(Window::SCREEN_HEIGHT);
+    /*proj[0][0] = ntan / aspectRatio;
+    proj[1][1] = ntan;
+    proj[2][2] = (n + f) / (n - f);
+    proj[2][3] = -1;
+    proj[3][2] = (2.0f * f * n)/(n - f);
+    proj[3][3] = 0;*/
+    proj = mat4(
+        ntan / aspectRatio, 0, 0, 0,
+        0, ntan, 0, 0,
+        0, 0, (n + f) / (n - f), -1,
+        0, 0, (2.0f * f * n)/(n - f), 0
+    );
+    //proj = perspective(radians(FOV), aspectRatio, n, f);
     /*
 
      */

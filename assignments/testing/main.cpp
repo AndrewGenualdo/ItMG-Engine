@@ -207,7 +207,6 @@ int world() {
     glfwSetCursorPosCallback(window.window, mouse_position_callback);
     glfwSetScrollCallback(window.window, scroll_callback);
     glfwSwapInterval(0);
-
     auto cubeShader = Shader("assets/assignment4/assignment4");
     cubeShader.use();
     cubeShader.setInt("tex", 0);
@@ -760,7 +759,7 @@ constexpr int TRIANGLE_RUNCODE = 2;
 
 int main() {
 
-    int runCode = MESH_RUNCODE;
+    int runCode = WORLD_RUNCODE;
     switch(runCode) {
         case WORLD_RUNCODE: return world();
         case MESH_RUNCODE: return mesh();
