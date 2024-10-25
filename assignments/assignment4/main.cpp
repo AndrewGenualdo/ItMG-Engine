@@ -22,49 +22,6 @@
 using namespace cobb;
 using namespace glm;
 
-
-mat4 scale(const float x, const float y, const float z) {
-    mat4 m = mat4(1);
-    m[0][0] = x;
-    m[1][1] = y;
-    m[2][2] = z;
-    return m;
-}
-
-mat4 rotate(const float yaw, const float pitch, const float roll) {
-    const mat4 x = mat4(
-        cos(yaw), 0, sin(yaw), 0,
-        0, 1, 0, 0,
-        -sin(yaw), 0, cos(yaw), 0,
-        0, 0, 0, 1
-    );
-    const mat4 y = mat4(
-        1, 0, 0, 0,
-        0, cos(pitch), -sin(pitch), 0,
-        0, sin(pitch), cos(pitch), 0,
-        0, 0, 0, 1
-    );
-    const mat4 z = mat4(
-        cos(roll), -sin(roll), 0, 0,
-        sin(roll), cos(roll), 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    );
-    return y * x * z;
-}
-
-mat4 translate(const float x, const float y, const float z) {
-    mat4 m = mat4(1);
-    m[3][0] = x;
-    m[3][1] = y;
-    m[3][2] = z;
-    return m;
-}
-
-//position = Camera position
-//_rotation = Camera direction
-//scale = Camera zoom?
-
 static Camera camera;
 
 static int activeBlock = -1;
@@ -266,9 +223,9 @@ int main() {
                 continue;
             }
 
-            mat4 t = translate(blockList[i]._position.x, blockList[i]._position.y, blockList[i]._position.z);
-            mat4 r = rotate(radians(blockList[i]._rotation.x), radians(blockList[i]._rotation.y), radians(blockList[i]._rotation.z));
-            mat4 s = scale(blockList[i]._scale.x, blockList[i]._scale.y, blockList[i]._scale.z);
+            mat4 t = Object::translate(blockList[i]._position.x, blockList[i]._position.y, blockList[i]._position.z);
+            mat4 r = Object::rotate(radians(blockList[i]._rotation.x), radians(blockList[i]._rotation.y), radians(blockList[i]._rotation.z));
+            mat4 s = Object::scale(blockList[i]._scale.x, blockList[i]._scale.y, blockList[i]._scale.z);
 
             if(activeBlock == -2) {
                 float clearTime = time - clearStart;
@@ -285,7 +242,7 @@ int main() {
                     }
                 } else if(clearTime > 1.0f) {
                     float shift = (clearTime - 1.0f) * 2.0f;
-                    t = translate(blockList[i]._position.x, blockList[i]._position.y - shift, blockList[i]._position.z);
+                    t = Object::translate(blockList[i]._position.x, blockList[i]._position.y - shift, blockList[i]._position.z);
                 }
             }
             //t * r * s = model matrix
@@ -310,9 +267,9 @@ int main() {
                 randomBlocks[i]._rotation.z += ew::RandomRange(-1000.0f, 1000.0f) * deltaTime;
             }
 
-            mat4 t = translate(randomBlocks[i]._position.x, randomBlocks[i]._position.y, randomBlocks[i]._position.z);
-            mat4 r = rotate(radians(randomBlocks[i]._rotation.x), radians(randomBlocks[i]._rotation.y), radians(randomBlocks[i]._rotation.z));
-            mat4 s = scale(randomBlocks[i]._scale.x, randomBlocks[i]._scale.y, randomBlocks[i]._scale.z);
+            mat4 t = Object::translate(randomBlocks[i]._position.x, randomBlocks[i]._position.y, randomBlocks[i]._position.z);
+            mat4 r = Object::rotate(radians(randomBlocks[i]._rotation.x), radians(randomBlocks[i]._rotation.y), radians(randomBlocks[i]._rotation.z));
+            mat4 s = Object::scale(randomBlocks[i]._scale.x, randomBlocks[i]._scale.y, randomBlocks[i]._scale.z);
             shader.setMat4("model", t * r * s);
             bread.draw();
         }

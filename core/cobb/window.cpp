@@ -4,6 +4,9 @@
 
 #include "window.hpp"
 
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include "GLFW/glfw3.h"
 
 
@@ -46,6 +49,8 @@ float cobb::Window::update() {
 
     //Clear framebuffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
     return deltaTime;
 }
 
