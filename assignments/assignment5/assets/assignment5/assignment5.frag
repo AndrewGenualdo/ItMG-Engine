@@ -1,18 +1,33 @@
 #version 330 core
 
-in vec4 pos;
-in vec2 TexCoord;
+struct Light {
+    vec3 pos;
+    vec4 color;
+};
 
-out vec4 FragColor;
-
-uniform vec4 color;
+uniform Light light;
 uniform bool lock;
 uniform sampler2D tex;
 
+in vec3 FragPos;
+in vec2 TexCoord;
+in vec3 Normals;
+
+
+out vec4 FragColor;
+
+
+
+
 void main() {
 
-    FragColor = texture(tex, TexCoord);
-    FragColor*=color;
+
+
+    //lighting variables
+    float ambientStrength = 0.1f;
+    vec4 ambient = ambientStrength * light.color;
+    vec4 result = texture(tex, TexCoord) + ambient;
+    FragColor = result;//vec4(abs(normalize(Normals)), 1.0f);
     if(lock) {
         FragColor*=vec4(0.5f, 0.5f, 0.5f, 1.0f);
     }

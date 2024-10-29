@@ -17,10 +17,11 @@
 
 #include "cobb/shader.hpp"
 #include "cobb/window.hpp"
+#include "cobb/objects/1d/line.hpp"
 #include "cobb/objects/3d/cube.hpp"
 #include "cobb/objects/3d/object.hpp"
 #include "cobb/objects/3d/camera.hpp"
-#include "cobb/objects/1d/line.hpp"
+#include "cobb/objects/3d/lightSource.hpp"
 
 using namespace cobb;
 using namespace glm;
@@ -70,14 +71,12 @@ int main() {
     auto shader = Shader("assets/assignment5/assignment5");
     shader.use();
 
-    //this is a picture of my friend from 5th grade (ish) and I though it was funny (don't worry, I asked him)
+    //this is a picture of my friend from 5th grade (ish) and I thought it was funny (don't worry, I asked him)
     Cube bread = Cube("assets/assignment4/owen.jpg", GL_NEAREST);
     bread.bind();
 
     shader.use();
     shader.setInt("tex", 0);
-
-    shader.use();
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(*Cube::getVAO());
 
@@ -87,10 +86,19 @@ int main() {
     Object randomBlocks[randomBlockCount];
 
     for(int i=0;i<randomBlockCount;i++) {
-        randomBlocks[i] = Object(vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, 50 + ew::RandomRange(0, 30)), vec3(ew::RandomRange(0, 360), ew::RandomRange(0, 360), ew::RandomRange(0, 360)), vec3(ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f)));
+        randomBlocks[i] = Object(
+            vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, 50 + ew::RandomRange(0, 30)),
+            vec3(ew::RandomRange(0, 360), ew::RandomRange(0, 360), ew::RandomRange(0, 360)),
+            vec3(ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f)));
+        randomBlocks[i]._rotation = vec3(0);
+        randomBlocks[i]._scale = vec3(1);
     }
 
-    vec4 color = vec4(1);
+    LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(1));
+    shader.setVec3("light.pos", lightSource.pos);
+    shader.setVec4("light.color", lightSource.color);
+
+
     //Render loop
     while (!glfwWindowShouldClose(window.window)) {
         glfwPollEvents();
@@ -105,12 +113,11 @@ int main() {
         ImGui::Begin("Settings :D");
         //ImGui::Text("Yo theres text here now :D");
         ImGui::Checkbox("Paused", &camera.lock);
-        ImGui::ColorEdit3("Color???", &color.r);
+        ImGui::ColorEdit4("Color???", &lightSource.color.r);
         ImGui::End();
 
         bread.bind();
         shader.use();
-        shader.setVec4("color", color);
         glBindVertexArray(*Cube::getVAO());
         camera.update(window.window, deltaTime);
         shader.setBool("lock", camera.lock);
@@ -124,6 +131,14 @@ int main() {
             mat4 s = Object::scale(randomBlocks[i]._scale.x, randomBlocks[i]._scale.y, randomBlocks[i]._scale.z);
             shader.setMat4("model", t * r * s);
             bread.draw();
+        }
+
+        if(camera.lock || true) {
+            lightShader->use();
+            shader.setMat4("view", camera.view);
+            shader.setMat4("proj", camera.proj);
+            shader.setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z));
+            lightSource.draw();
         }
 
         if(camera.ui) {
