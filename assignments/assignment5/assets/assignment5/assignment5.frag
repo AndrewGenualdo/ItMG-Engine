@@ -2,34 +2,46 @@
 
 struct Light {
     vec3 pos;
-    vec4 color;
+    vec3 color;
 };
 
 uniform Light light;
-uniform bool lock;
 uniform sampler2D tex;
+uniform vec3 cameraPos;
+uniform float shinyness;
 
 in vec3 FragPos;
 in vec2 TexCoord;
-in vec3 Normals;
-
+in vec3 Normal;
+in vec3 viewPos;
 
 out vec4 FragColor;
 
-
-
-
 void main() {
 
+    bool blinn = true;
 
+    vec4 texColor = texture(tex, TexCoord);
 
     //lighting variables
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(light.pos - FragPos);
+
+    float diff = max(dot(norm, lightDir), 0.0f);
+    vec3 diffuse = diff * light.color;
+
+    float specularStrength = 0.5f;
+    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = diff == 0.0f ? 0.0f : pow(max(dot(norm, blinn ? halfwayDir : reflectDir), 0.0f), shinyness);
+    vec3 specular = specularStrength * light.color * spec;
+
     float ambientStrength = 0.1f;
-    vec4 ambient = ambientStrength * light.color;
-    vec4 result = texture(tex, TexCoord) + ambient;
-    FragColor = result;//vec4(abs(normalize(Normals)), 1.0f);
-    if(lock) {
-        FragColor*=vec4(0.5f, 0.5f, 0.5f, 1.0f);
-    }
+    vec3 ambient = ambientStrength * light.color;
+
+    vec3 result = texColor.rgb * (ambient + diffuse + specular);
+
+    FragColor = vec4(result, texColor.a);//vec4(abs(normalize(Normals)), 1.0f);
 
 }

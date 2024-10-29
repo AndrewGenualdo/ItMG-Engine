@@ -82,22 +82,27 @@ int main() {
 
     camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 60.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
 
-    constexpr int randomBlockCount = 20;
+    constexpr int randomBlockCount = 100;
     Object randomBlocks[randomBlockCount];
 
     for(int i=0;i<randomBlockCount;i++) {
         randomBlocks[i] = Object(
-            vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, 50 + ew::RandomRange(0, 30)),
+            vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15),
             vec3(ew::RandomRange(0, 360), ew::RandomRange(0, 360), ew::RandomRange(0, 360)),
             vec3(ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f)));
         randomBlocks[i]._rotation = vec3(0);
         randomBlocks[i]._scale = vec3(1);
     }
 
-    LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(1));
-    shader.setVec3("light.pos", lightSource.pos);
-    shader.setVec4("light.color", lightSource.color);
+    bool drawLightSource = true;
+    bool moveLightSource = true;
+    float moveSpeed = 0.5f;
+    bool rainbowLight = true;
+    float rainbowSaturation = 0.0f;
+    float rainbowSpeed = 1.6f;
+    float lightShinyness = 5.0f;
 
+    LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(0, 1, 1, 1));
 
     //Render loop
     while (!glfwWindowShouldClose(window.window)) {
@@ -112,35 +117,70 @@ int main() {
 
         ImGui::Begin("Settings :D");
         //ImGui::Text("Yo theres text here now :D");
-        ImGui::Checkbox("Paused", &camera.lock);
-        ImGui::ColorEdit4("Color???", &lightSource.color.r);
+        ImGui::Text(camera.lock ? "Paused (ESC): true" : "Paused (ESC): false");
+        ImGui::Checkbox("Draw Light", &drawLightSource);
+        ImGui::Checkbox("Move Light", &moveLightSource);
+        if(moveLightSource) {
+            ImGui::SliderFloat("Light Speed", &moveSpeed, 0.1f, 10.0f);
+        } else {
+            ImGui::DragFloat3("Light Pos", &lightSource.pos.x);
+        }
+        ImGui::Checkbox("Rainbow Light", &rainbowLight);
+        if(rainbowLight) {
+            ImGui::SliderFloat("Rainbow Speed", &rainbowSpeed, 0.1f, 10.0f);
+            ImGui::SliderFloat("Saturation", &rainbowSaturation, -1.0f, 1.0f);
+        } else {
+            ImGui::ColorEdit4("Light Color", &lightSource.color.r);
+        }
+        ImGui::SliderFloat("Object Shinyness", &lightShinyness, 0, 10);
         ImGui::End();
 
         bread.bind();
         shader.use();
         glBindVertexArray(*Cube::getVAO());
         camera.update(window.window, deltaTime);
-        shader.setBool("lock", camera.lock);
         shader.setMat4("view", camera.view);
         shader.setMat4("proj", camera.proj);
-
+        shader.setVec3("cameraPos", camera._position);
+        shader.setFloat("shinyness", glm::pow(2, lightShinyness));
+        shader.setVec3("light.pos", lightSource.pos);
+        shader.setVec3("light.color", lightSource.color);
 
         for(int i=0;i<randomBlockCount;i++) {
             mat4 t = Object::translate(randomBlocks[i]._position.x, randomBlocks[i]._position.y, randomBlocks[i]._position.z);
             mat4 r = Object::rotate(radians(randomBlocks[i]._rotation.x), radians(randomBlocks[i]._rotation.y), radians(randomBlocks[i]._rotation.z));
             mat4 s = Object::scale(randomBlocks[i]._scale.x, randomBlocks[i]._scale.y, randomBlocks[i]._scale.z);
-            shader.setMat4("model", t * r * s);
+            mat4 model = t * r * s;
+            shader.setMat4("model", model);
+            shader.setMat3("transposeInverseModel", mat3(transpose(inverse(model))));
             bread.draw();
         }
 
-        if(camera.lock || true) {
+
+        if(moveLightSource) {
+            lightSource.pos.x = cos(time * moveSpeed) * 15;
+            lightSource.pos.y = sin(time * moveSpeed * 1.6f) * 15;
+            lightSource.pos.z = sin(time * moveSpeed) * 15;
+        }
+
+        if(rainbowLight) {
+            lightSource.color.r = glm::max(glm::min((sin(rainbowSpeed * time) + 1.0f) * 0.5f + rainbowSaturation, 1.0f), 0.0f);
+            lightSource.color.g = glm::max(glm::min((sin((rainbowSpeed * time) - glm::two_pi<float>() / 3.0f) + 1.0f) * 0.5f + rainbowSaturation, 1.0f), 0.0f);
+            lightSource.color.b = glm::max(glm::min((sin((rainbowSpeed * time) - glm::two_pi<float>() * 2.0f / 3.0f) + 1.0f) * 0.5f + rainbowSaturation, 1.0f), 0.0f);
+        }
+
+        //light source
+        if(drawLightSource) {
             lightShader->use();
-            shader.setMat4("view", camera.view);
-            shader.setMat4("proj", camera.proj);
-            shader.setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z));
+            lightShader->setMat4("view", camera.view);
+            lightShader->setMat4("proj", camera.proj);
+            lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z));
+            lightShader->setVec4("color", lightSource.color);
             lightSource.draw();
         }
 
+
+        //axis gizmo
         if(camera.ui) {
             glDisable(GL_DEPTH_TEST);
 

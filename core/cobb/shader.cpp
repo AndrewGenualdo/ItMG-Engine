@@ -127,6 +127,9 @@ void cobb::Shader::setVec4(const string &name, const glm::vec4 &value) const {
     glUniform4f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z, value.w);
 }
 
+void cobb::Shader::setMat3(const string &name, const glm::mat3& value) const {
+    glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
 
 void cobb::Shader::setMat4(const string &name, const glm::mat4& value) const {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &value[0][0]);
