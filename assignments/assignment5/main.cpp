@@ -71,8 +71,7 @@ int main() {
     auto shader = Shader("assets/assignment5/assignment5");
     shader.use();
 
-    //this is a picture of my friend from 5th grade (ish) and I thought it was funny (don't worry, I asked him)
-    Cube bread = Cube("assets/assignment4/owen.jpg", GL_NEAREST);
+    Cube bread = Cube("assets/assignment5/cube.png", GL_NEAREST);
     bread.bind();
 
     shader.use();
@@ -82,16 +81,29 @@ int main() {
 
     camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 60.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
 
-    constexpr int randomBlockCount = 100;
+    constexpr int randomBlockCount = 1024;
     Object randomBlocks[randomBlockCount];
 
     for(int i=0;i<randomBlockCount;i++) {
-        randomBlocks[i] = Object(
-            vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15),
-            vec3(ew::RandomRange(0, 360), ew::RandomRange(0, 360), ew::RandomRange(0, 360)),
-            vec3(ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f), ew::RandomRange(0.1f, 5.0f)));
-        randomBlocks[i]._rotation = vec3(0);
-        randomBlocks[i]._scale = vec3(1);
+        bool repeat = true;
+        while(repeat) {
+            repeat = false;
+            randomBlocks[i] = Object(
+                    vec3(ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15, ew::RandomRange(0, 30) - 15),
+                    vec3(0),
+                    vec3(0.5f));
+            randomBlocks[i]._position = normalize(randomBlocks[i]._position) * vec3(15);
+            randomBlocks[i]._position = vec3((int) randomBlocks[i]._position.x, (int) randomBlocks[i]._position.y, (int) randomBlocks[i]._position.z);
+
+            for(int j=0;j<i;j++) {
+                if(randomBlocks[i]._position == randomBlocks[j]._position) {
+                    repeat = true;
+                    break;
+                }
+            }
+        }
+
+
     }
 
     bool drawLightSource = true;
@@ -158,9 +170,9 @@ int main() {
 
 
         if(moveLightSource) {
-            lightSource.pos.x = cos(time * moveSpeed) * 15;
-            lightSource.pos.y = sin(time * moveSpeed * 1.6f) * 15;
-            lightSource.pos.z = sin(time * moveSpeed) * 15;
+            lightSource.pos.x = cos(time * moveSpeed * 1.1f) * 15;
+            lightSource.pos.y = sin(time * moveSpeed * 1.2f) * 15;
+            lightSource.pos.z = sin(time * moveSpeed * 1.3f) * 15;
         }
 
         if(rainbowLight) {
@@ -174,7 +186,7 @@ int main() {
             lightShader->use();
             lightShader->setMat4("view", camera.view);
             lightShader->setMat4("proj", camera.proj);
-            lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z));
+            lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z) * Object::scale(0.5f, 0.5f, 0.5f));
             lightShader->setVec4("color", lightSource.color);
             lightSource.draw();
         }
