@@ -113,6 +113,7 @@ int main() {
     float rainbowSaturation = 0.0f;
     float rainbowSpeed = 1.6f;
     float lightShinyness = 5.0f;
+    bool moveLightToOrigin = false;
 
     LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(0, 1, 1, 1));
 
@@ -136,6 +137,11 @@ int main() {
             ImGui::SliderFloat("Light Speed", &moveSpeed, 0.1f, 10.0f);
         } else {
             ImGui::DragFloat3("Light Pos", &lightSource.pos.x);
+            ImGui::Checkbox("Move Light to Origin", &moveLightToOrigin);
+            if(moveLightToOrigin) {
+                lightSource.pos = vec3(0);
+                moveLightToOrigin = false;
+            }
         }
         ImGui::Checkbox("Rainbow Light", &rainbowLight);
         if(rainbowLight) {
@@ -186,8 +192,8 @@ int main() {
             lightShader->use();
             lightShader->setMat4("view", camera.view);
             lightShader->setMat4("proj", camera.proj);
-            lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z) * Object::scale(0.5f, 0.5f, 0.5f));
             lightShader->setVec4("color", lightSource.color);
+            lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z) * Object::scale(0.5f, 0.5f, 0.5f));
             lightSource.draw();
         }
 
