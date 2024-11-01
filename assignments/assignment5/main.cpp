@@ -112,7 +112,7 @@ int main() {
     bool rainbowLight = true;
     float rainbowSaturation = 0.0f;
     float rainbowSpeed = 1.6f;
-    float lightShinyness = 5.0f;
+    vec3 ambientSpecularShininess = vec3(0.1f, 0.5f, 32.0f);
     bool moveLightToOrigin = false;
 
     LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(0, 1, 1, 1));
@@ -150,7 +150,9 @@ int main() {
         } else {
             ImGui::ColorEdit4("Light Color", &lightSource.color.r);
         }
-        ImGui::SliderFloat("Object Shinyness", &lightShinyness, 0, 10);
+        ImGui::SliderFloat("Ambient K", &ambientSpecularShininess.x, 0.0f, 1.0f);
+        ImGui::SliderFloat("Specular K", &ambientSpecularShininess.y, 0.0f, 1.0f);
+        ImGui::SliderFloat("Shininess", &ambientSpecularShininess.z, 0.0f, 64.0f);
         ImGui::End();
 
         bread.bind();
@@ -160,7 +162,8 @@ int main() {
         shader.setMat4("view", camera.view);
         shader.setMat4("proj", camera.proj);
         shader.setVec3("cameraPos", camera._position);
-        shader.setFloat("shinyness", glm::pow(2, lightShinyness));
+        shader.setVec3("ambientSpecularShininess", ambientSpecularShininess);
+        //shader.setFloat("shinyness", glm::pow(2, lightShinyness));
         shader.setVec3("light.pos", lightSource.pos);
         shader.setVec3("light.color", lightSource.color);
 

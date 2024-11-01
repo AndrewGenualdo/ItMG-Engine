@@ -8,7 +8,7 @@ struct Light {
 uniform Light light;
 uniform sampler2D tex;
 uniform vec3 cameraPos;
-uniform float shinyness;
+uniform vec3 ambientSpecularShininess;
 
 in vec3 FragPos;
 in vec2 TexCoord;
@@ -30,14 +30,14 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.0f);
     vec3 diffuse = diff * light.color;
 
-    float specularStrength = 0.5f;
+    float specularStrength = ambientSpecularShininess.y;
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = diff == 0.0f ? 0.0f : pow(max(dot(norm, blinn ? halfwayDir : reflectDir), 0.0f), shinyness);
+    float spec = diff == 0.0f ? 0.0f : pow(max(dot(norm, blinn ? halfwayDir : reflectDir), 0.0f), ambientSpecularShininess.z);
     vec3 specular = specularStrength * light.color * spec;
 
-    float ambientStrength = 0.1f;
+    float ambientStrength = ambientSpecularShininess.x;
     vec3 ambient = ambientStrength * light.color;
 
     vec3 result = texColor.rgb * (ambient + diffuse + specular);
