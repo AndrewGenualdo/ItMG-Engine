@@ -752,18 +752,86 @@ int triangleTest() {
 
     return 0;
 }
+int geometry() {
+
+    auto window = Window("TRIANGLE!!!");
+    glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window.window, key_callback);
+    glfwSetCursorPosCallback(window.window, mouse_position_callback);
+    glfwSetScrollCallback(window.window, scroll_callback);
+    glfwSwapInterval(0);
+    camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 60.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
+    Line::loadShader();
+
+    struct Vertex {
+        vec3 pos;
+        vec3 normal;
+        vec2 uv;
+    };
+
+    int subDiv = 3;
+    float width = 5.0f;
+    float height = 5.0f;
+    for(int row = 0; row <= subDiv; row++) {
+        for(int col = 0; col <= subDiv; col++) {
+            Vertex v;
+            v.uv.x = static_cast<float>(col) / static_cast<float>(subDiv);
+            v.uv.y = static_cast<float>(row) / static_cast<float>(subDiv);
+            v.pos.x = v.uv.x * width;
+            v.pos.y = v.uv.y * height;
+            v.pos.z = 0.0f;
+            v.normal = vec3(0, 0, 1);
+        }
+    }
+
+    while (!glfwWindowShouldClose(window.window)) {
+        glfwPollEvents();
+        float deltaTime = window.update();
+        float time = window.getTime();
+        camera.update(window.window, deltaTime);
+
+        if(camera.ui && lineShader != nullptr) {
+            glDisable(GL_DEPTH_TEST);
+
+            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
+            const float compassScale = 900.0f;
+
+            vec3 p = camera.forward * vec3(compassScale) + camera._position;
+
+            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
+            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
+            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
+
+            lineShader->use();
+            lineShader->setMat4("viewProj", camera.proj * camera.view);
+            glBindVertexArray(*Line::getVAO());
+
+            xAxis.draw(&camera);
+            yAxis.draw(&camera);
+            zAxis.draw(&camera);
+
+            glEnable(GL_DEPTH_TEST);
+        }
+
+        glfwSwapBuffers(window.window);
+    }
+
+    return 0;
+}
 
 constexpr int WORLD_RUNCODE = 0;
 constexpr int MESH_RUNCODE = 1;
 constexpr int TRIANGLE_RUNCODE = 2;
+constexpr int GEOMETRY_RUNCODE = 3;
 
 int main() {
 
-    int runCode = WORLD_RUNCODE;
+    int runCode = GEOMETRY_RUNCODE;
     switch(runCode) {
         case WORLD_RUNCODE: return world();
         case MESH_RUNCODE: return mesh();
         case TRIANGLE_RUNCODE: return triangleTest();
+        case GEOMETRY_RUNCODE: return geometry();
     }
 
 

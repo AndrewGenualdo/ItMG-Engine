@@ -61,7 +61,6 @@ int main() {
     glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window.window, mouse_position_callback);
     glfwSetScrollCallback(window.window, scroll_callback);
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(window.window, true);

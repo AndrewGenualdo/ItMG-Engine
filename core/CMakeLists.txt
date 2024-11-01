@@ -38,6 +38,8 @@ add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/objects/2d/fadeTriangle.h
         cobb/objects/3d/lightSource.cpp
         cobb/objects/3d/lightSource.hpp
+        cobb/objects/3d/mesh.cpp
+        cobb/objects/3d/mesh.h
 )
 
 add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
