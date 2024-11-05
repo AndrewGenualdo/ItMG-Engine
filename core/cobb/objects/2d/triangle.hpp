@@ -24,7 +24,7 @@ namespace cobb {
     const static float VERTICES_TRIANGLE[] = {
             0, 0, 0,
             1, 0, 0,
-            0, 0, 1
+            0, 1, 0
     };
 
     static Shader *triangleShader;
@@ -80,18 +80,36 @@ namespace cobb {
                 glBindVertexArray(*getVAO());
             }
 
-            vec3 dynamicVertices[3] = {
+            const vec3 targetPoints[3] = {
                     p1, p2, p3
             };
 
             //glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
             //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(dynamicVertices), dynamicVertices);
-            const vec3 side1 = normalize(p2 - p1);
+            /*const vec3 side1 = normalize(p2 - p1);
             const vec3 side2 = normalize(p3 - p1);
             mat4 scale = mat4(1);
             scale[0] = vec4(side1.x, side1.y, side1.z, 0);
-            scale[2] = vec4(side2.x, side2.y, side2.z, 0);
-            triangleShader->setMat4("model", Object::translate(p1.x, p1.y, p1.z) * scale);
+            scale[2] = vec4(side2.x, side2.y, side2.z, 0);*/
+
+            constexpr vec3 originalPoints[3] = {
+                vec3(0, 0, 0),
+                vec3(1, 0, 0),
+                vec3(0, 1, 0)
+            };
+
+            constexpr vec3 oV0 = originalPoints[1] - originalPoints[0];
+            constexpr vec3 oV1 = originalPoints[2] - originalPoints[0];
+            const auto originalBasis = mat3(oV0, oV1, cross(oV0, oV1));
+
+            const vec3 tV0 = targetPoints[1] - targetPoints[0];
+            const vec3 tV1 = targetPoints[2] - targetPoints[0];
+            const auto targetBasis = mat3(tV0, tV1, cross(tV0, tV1));
+
+
+            const mat3 rotationScaling = targetBasis * inverse(originalBasis);
+
+            triangleShader->setMat4("model", Object::translate(p1.x, p1.y, p1.z) * mat4(rotationScaling));
             triangleShader->setVec4("color", camera->lock ? color * vec4(0.5f, 0.5f, 0.5f, 1.0f) : color);
             glDrawArrays(GL_TRIANGLES, 0, 3);
         }

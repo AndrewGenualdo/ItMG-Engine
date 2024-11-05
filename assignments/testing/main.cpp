@@ -14,7 +14,7 @@
 #include "cobb/objects/1d/fadeLine.hpp"
 #include "ew/ewMath/ewMath.h"
 #include "cobb/objects/2d/triangle.hpp"
-#include "cobb/objects/2d/fadeTriangle.h"
+#include "cobb/objects/2d/fadeTriangle.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -471,11 +471,11 @@ int mesh() {
     Triangle::loadShader();
     FadeTriangle::loadShader();
     glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     int length = 1;
     int max = 50;
     float drawDistance = 100.0f;
-    float mult = 0.00001f;
+    float mult = 0.000001f;
     float highest = -999999999.0f;
     float lowest =   999999999.0f;
     MeshPoint *positions = new MeshPoint[max * max];
@@ -487,7 +487,7 @@ int mesh() {
     FadeLine *zLines = new FadeLine[lineCount];
 
     int triangleCount = (max - 1) * (max - 1);
-    Triangle *triangles = new Triangle[triangleCount * 4];
+    auto *triangles = new FadeTriangle[triangleCount * 4];
     float *centerHeights = new float[triangleCount];
 
     for(int i=0;i<max*max;i++) {
@@ -565,15 +565,15 @@ int mesh() {
 
                         float dist0 = (highest0 + highest) / (highest - lowest);
 
-                        triangles[t0ArrayPos].color = vec4(0, dist0 * 0.5f + 0.1f, dist0 - (dist0 * 0.5f) + 0.25f, 1);
 
-                        /*triangles[t1ArrayPos].p1 = vec3(x + 1, positions[arrayPos + 1].y, z);
+
+                        triangles[t1ArrayPos].p1 = vec3(x + 1, positions[arrayPos + 1].y, z);
                         triangles[t1ArrayPos].p2 = vec3(x + 1, positions[arrayPos + max + 1].y, z + 1);
                         triangles[t1ArrayPos].p3 = vec3(x + 0.5f, centerHeights[z * (max - 1) + x], z + 0.5f);
 
-                        float dist1 = (highest2 + highest) / (highest - lowest);
+                        float dist1 = (highest1 + highest) / (highest - lowest);
 
-                        triangles[t1ArrayPos].color = vec4(0, dist1 * 0.5f + 0.1f, dist1 - (dist1 * 0.5f) + 0.25f, 1);
+
 
                         triangles[t2ArrayPos].p1 = vec3(x + 1, positions[arrayPos + max + 1].y, z + 1); //possible
                         triangles[t2ArrayPos].p2 = vec3(x, positions[arrayPos + max].y, z + 1); //possible
@@ -581,15 +581,39 @@ int mesh() {
 
                         float dist2 = (highest2 + highest) / (highest - lowest);
 
-                        triangles[t2ArrayPos].color = vec4(0, dist2 * 0.5f + 0.1f, dist2 - (dist2 * 0.5f) + 0.25f, 1);
+
 
                         triangles[t3ArrayPos].p1 = vec3(x, positions[arrayPos + max].y, z + 1);
                         triangles[t3ArrayPos].p2 = vec3(x, positions[arrayPos].y, z);
                         triangles[t3ArrayPos].p3 = vec3(x + 0.5f, centerHeights[z * (max - 1) + x], z + 0.5f);
 
-                        float dist3 = (highest0 + highest) / (highest - lowest);
+                        float dist3 = (highest3 + highest) / (highest - lowest);
 
-                        triangles[t3ArrayPos].color = vec4(0, dist3 * 0.5f + 0.1f, dist3 - (dist3 * 0.5f) + 0.25f, 1);*/
+                        triangles[t0ArrayPos].color = vec4(0, dist0 * 0.5f + 0.1f, dist0 - (dist0 * 0.5f) + 0.25f, 1);
+                        triangles[t1ArrayPos].color = vec4(0, dist1 * 0.5f + 0.1f, dist1 - (dist1 * 0.5f) + 0.25f, 1);
+                        triangles[t2ArrayPos].color = vec4(0, dist2 * 0.5f + 0.1f, dist2 - (dist2 * 0.5f) + 0.25f, 1);
+                        triangles[t3ArrayPos].color = vec4(0, dist3 * 0.5f + 0.1f, dist3 - (dist3 * 0.5f) + 0.25f, 1);
+
+                        triangles[t0ArrayPos].color2 = vec4(1);
+                        triangles[t1ArrayPos].color2 = vec4(1);
+                        triangles[t2ArrayPos].color2 = vec4(1);
+                        triangles[t3ArrayPos].color2 = vec4(1);
+                        triangles[t0ArrayPos].color3 = vec4(1);
+                        triangles[t1ArrayPos].color3 = vec4(1);
+                        triangles[t2ArrayPos].color3 = vec4(1);
+                        triangles[t3ArrayPos].color3 = vec4(1);
+                        //triangles[t1ArrayPos].color3 = vec4(0.5f);
+                        //triangles[]
+                        //triangles[t2ArrayPos].color3 = vec4(1);
+                        //triangles[t3ArrayPos].color3 = vec4(1);
+                        /*triangles[t0ArrayPos].color2 = triangles[t1ArrayPos].color;
+                        triangles[t1ArrayPos].color2 = triangles[t2ArrayPos].color;
+                        triangles[t2ArrayPos].color2 = triangles[t3ArrayPos].color;
+                        triangles[t3ArrayPos].color2 = triangles[t0ArrayPos].color;
+                        triangles[t0ArrayPos].color3 = triangles[t1ArrayPos].color2;
+                        triangles[t1ArrayPos].color3 = triangles[t2ArrayPos].color2;
+                        triangles[t2ArrayPos].color3 = triangles[t3ArrayPos].color2;
+                        triangles[t3ArrayPos].color3 = triangles[t0ArrayPos].color2;*/
                     }
                 }
             }
@@ -630,13 +654,16 @@ int mesh() {
 
         camera.update(window.window, deltaTime);
 
-        if(fadeLineShader != nullptr && triangleShader != nullptr) {
+        if(fadeLineShader != nullptr && fadeTriangleShader != nullptr) {
 
             if(wireframeMode == 0) {
-                triangleShader->use();
-                triangleShader->setMat4("viewProj", camera.proj * camera.view);
-                glBindVertexArray(*Triangle::getVAO());
+                fadeTriangleShader->use();
+                fadeTriangleShader->setMat4("viewProj", camera.proj * camera.view);
+                glBindVertexArray(*FadeTriangle::getVAO());
                 for(int i=0;i<triangleCount * 4;i++) {
+                    //fadeTriangleShader->setVec3("color", triangles[i].color);
+                    //fadeTriangleShader->setVec3("color2", triangles[i].color2);
+                    //fadeTriangleShader->setVec3("color3", triangles[i].color3);
                     triangles[i].draw(&camera);
                 }
             }
@@ -826,7 +853,7 @@ constexpr int GEOMETRY_RUNCODE = 3;
 
 int main() {
 
-    int runCode = GEOMETRY_RUNCODE;
+    int runCode = MESH_RUNCODE;
     switch(runCode) {
         case WORLD_RUNCODE: return world();
         case MESH_RUNCODE: return mesh();

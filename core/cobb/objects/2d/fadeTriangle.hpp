@@ -60,12 +60,32 @@ namespace cobb
                 glBindVertexArray(*getVAO());
             }
 
-            vec3 dynamicVertices[3] = { p1, p2, p3 };
+            const vec3 targetPoints[3] = { p1, p2, p3 };
 
-            glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(dynamicVertices), dynamicVertices);
+            /*constexpr vec3 originalPoints[3] = {
+                vec3(0, 0, 0),
+                vec3(1, 0, 0),
+                vec3(0, 1, 0)
+            };*/
 
+            //constexpr vec3 oV0 = originalPoints[1] - originalPoints[0];
+            //constexpr vec3 oV1 = originalPoints[2] - originalPoints[0];
+            //const auto originalBasis = mat3(oV0, oV1, cross(oV0, oV1));
 
+            //const mat3 invOriginalBasis = inverse(originalBasis);
+            //constexpr auto invOriginalBasis = mat3(1);
+
+            const vec3 tV0 = targetPoints[1] - targetPoints[0];
+            const vec3 tV1 = targetPoints[2] - targetPoints[0];
+            const auto targetBasis = mat3(tV0, tV1, cross(tV0, tV1));
+
+            //const mat3 rotationScaling = targetBasis;// invOriginalBasis;
+
+            //glBindBuffer(GL_ARRAY_BUFFER, *getVBO());
+            //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(dynamicVertices), dynamicVertices);
+            //glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            fadeTriangleShader->setMat4("model", Object::translate(p1.x, p1.y, p1.z) * mat4(targetBasis));
             fadeTriangleShader->setVec4("color", camera->lock ? color * vec4(0.5f, 0.5f, 0.5f, 1.0f) : color);
             fadeTriangleShader->setVec4("color2", camera->lock ? color2 * vec4(0.5f, 0.5f, 0.5f, 1.0f) : color2);
             fadeTriangleShader->setVec4("color3", camera->lock ? color3 * vec4(0.5f, 0.5f, 0.5f, 1.0f) : color3);
