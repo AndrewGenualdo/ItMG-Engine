@@ -74,17 +74,17 @@ unsigned int cobb::Cube::getId() const {
 }
 
 unsigned int *cobb::Cube::getVAO() {
-    if (CUBE_VAO == -1) {
-        glGenVertexArrays(1, &CUBE_VAO);
+    if (CUBEMAP_VAO == -1) {
+        glGenVertexArrays(1, &CUBEMAP_VAO);
     }
 
-    return &CUBE_VAO;
+    return &CUBEMAP_VAO;
 }
 
 unsigned int *cobb::Cube::getVBO() {
-    if (CUBE_VBO == -1) {
-        glGenBuffers(1, &CUBE_VBO);
+    if (CUBEMAP_VBO == -1) {
+        glGenBuffers(1, &CUBEMAP_VBO);
     }
 
-    return &CUBE_VBO;
+    return &CUBEMAP_VBO;
 }

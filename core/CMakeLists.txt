@@ -40,6 +40,10 @@ add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/objects/3d/lightSource.hpp
         cobb/objects/3d/mesh.cpp
         cobb/objects/3d/mesh.hpp
+        cobb/objects/3d/cubeMap.cpp
+        cobb/objects/3d/cubeMap.hpp
+        cobb/objects/3d/geometry.cpp
+        cobb/objects/3d/geometry.hpp
 )
 
 add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -50,7 +54,7 @@ add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
 
 find_package(OpenGL REQUIRED)
 
-target_link_libraries(core PUBLIC IMGUI glm)
+target_link_libraries(core PUBLIC IMGUI glm assimp)
 
 install (TARGETS core DESTINATION lib)
 install (FILES ${CORE_INC} DESTINATION include/core)

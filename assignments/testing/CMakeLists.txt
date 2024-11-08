@@ -17,7 +17,7 @@ ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)
 install(FILES ${TESTING_INC} DESTINATION include/testing)
 add_executable(testing ${TESTING_SRC} ${TESTING_INC}
         main.cpp)
-target_link_libraries(testing PUBLIC core IMGUI glm)
+target_link_libraries(testing PUBLIC core IMGUI glm assimp)
 target_include_directories(testing PUBLIC ${CORE_INC_DIR} ${stb_INCLUDE_DIR})
 
 #Trigger asset copy when testing is built

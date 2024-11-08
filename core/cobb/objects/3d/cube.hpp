@@ -14,7 +14,7 @@
 #include "../../shader.hpp"
 
 namespace cobb {
-    static unsigned int CUBE_VAO = -1, CUBE_VBO = -1;
+    static unsigned int CUBEMAP_VAO = -1, CUBEMAP_VBO = -1;
 
 
 const static float VERTICES_CUBE[] = {
@@ -64,7 +64,6 @@ const static float VERTICES_CUBE[] = {
 
     class Cube
     {
-    private:
         unsigned int m_id;
 
         int m_width, m_height;
