@@ -8,21 +8,23 @@
 #include <vector>
 #include "../../shader.hpp"
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 #include "iostream"
+#include <assimp/scene.h>
 
 using namespace std;
 using namespace glm;
 
 namespace cobb {
-    /*class Geometry {
+    class Geometry {
 
     };
 
     struct Vertex {
         vec3 Pos;
         vec3 Normal;
-        vec3 TexCoords;
+        vec2 TexCoords;
     };
 
     struct Texture {
@@ -43,7 +45,25 @@ namespace cobb {
         unsigned int VAO, VBO, EBO;
 
         void setupMesh();
-    };*/
+    };
+
+    class Model {
+    public:
+        Model(char* path) {
+            loadModel(path);
+        }
+
+        void Draw(Shader& shader);
+    private:
+        //model data
+        vector<Mesh> meshes;
+        string directory;
+
+        void loadModel(string path);
+        void processNode(aiNode* node, const aiScene* scene);
+        Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+        vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
+    };
 
 
 }

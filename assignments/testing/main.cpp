@@ -17,6 +17,9 @@
 #include "cobb/objects/2d/fadeTriangle.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 using namespace cobb;
@@ -855,6 +858,11 @@ int skybox() {
     glfwSwapInterval(0);
     camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 60.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
     Line::loadShader();
+
+
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile("assets/testing/backpack.fbx", aiProcess_Triangulate | aiProcess_FlipUVs);
+
 
     while (!glfwWindowShouldClose(window.window)) {
         glfwPollEvents();

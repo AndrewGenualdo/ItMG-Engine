@@ -9,7 +9,7 @@ file(
  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
  *.c *.cpp
 )
-#Copies this assignment2's asset folder to bin when it is built
+#Copies this testing's asset folder to bin when it is built
 add_custom_target(copyAssetsT ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
 ${CMAKE_CURRENT_SOURCE_DIR}/assets/
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)

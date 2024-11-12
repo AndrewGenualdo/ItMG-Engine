@@ -15,6 +15,8 @@ set(CORE_INC_DIR
  CACHE PATH "CORE INCLUDE SOURCE PATH"
 )
 
+
+
 add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/shader.cpp
         cobb/shader.hpp
@@ -53,7 +55,6 @@ add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)
 
 find_package(OpenGL REQUIRED)
-
 target_link_libraries(core PUBLIC IMGUI glm assimp)
 
 install (TARGETS core DESTINATION lib)
