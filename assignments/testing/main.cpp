@@ -15,6 +15,7 @@
 #include "ew/ewMath/ewMath.h"
 #include "cobb/objects/2d/triangle.hpp"
 #include "cobb/objects/2d/fadeTriangle.hpp"
+#include "cobb/objects/3d/geometry.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
 #include <assimp/Importer.hpp>
@@ -860,9 +861,12 @@ int skybox() {
     Line::loadShader();
 
 
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("assets/testing/backpack.fbx", aiProcess_Triangulate | aiProcess_FlipUVs);
+    //Assimp::Importer importer;
+    //const aiScene* scene = importer.ReadFile("assets/testing/backpack.fbx", aiProcess_Triangulate | aiProcess_FlipUVs);
 
+    Shader shader = Shader("assets/testing/sphere");
+    string path = "assets/testing/backpack/backpack.obj";
+    Model ourModel(path);
 
     while (!glfwWindowShouldClose(window.window)) {
         glfwPollEvents();
@@ -870,6 +874,11 @@ int skybox() {
         float time = window.getTime();
         camera.update(window.window, deltaTime);
 
+        shader.use();
+
+        shader.setMat4("viewProj", camera.proj * camera.view);
+        shader.setMat4("model", mat4(1));
+        //ourModel.Draw(shader);
 
 
         if(camera.ui && lineShader != nullptr) {

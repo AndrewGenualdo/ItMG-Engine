@@ -25,11 +25,16 @@ namespace cobb {
         vec3 Pos;
         vec3 Normal;
         vec2 TexCoords;
+        vec3 Tangent;
+        vec3 Bitangent;
+        int m_BoneIDs[4];
+        int m_Weights[4];
     };
 
     struct Texture {
         unsigned int id;
         string type;
+        string path;
     };
 
     class Mesh {
@@ -49,7 +54,7 @@ namespace cobb {
 
     class Model {
     public:
-        Model(char* path) {
+        Model(string &path) {
             loadModel(path);
         }
 
@@ -63,6 +68,7 @@ namespace cobb {
         void processNode(aiNode* node, const aiScene* scene);
         Mesh processMesh(aiMesh* mesh, const aiScene* scene);
         vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
+        unsigned int TextureFromFile(const char *path, const string &directory);
     };
 
 
