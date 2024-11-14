@@ -25,6 +25,13 @@ include(external/imgui.cmake)
 include(external/glm.cmake)
 include(external/assimp.cmake)
 
+# Disable treating warnings as errors for Assimp specifically
+# This allows it to run on CLion
+if(TARGET assimp)
+  target_compile_options(assimp PRIVATE -Wno-error)
+endif()
+
+
 add_subdirectory(core)
 add_subdirectory(assignments/testing)
 add_subdirectory(assignments/assignment1_helloTriangle)
