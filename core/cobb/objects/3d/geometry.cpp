@@ -19,23 +19,28 @@ cobb::Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<T
 void cobb::Mesh::Draw(Shader &shader) {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
+    unsigned int normalNr = 1;
+    unsigned int heightNr = 1;
     for(unsigned int i = 0; i < textures.size(); i++) {
-
         string number;
         string name = textures[i].type;
         if(name == "texture_diffuse") {
             number = to_string(diffuseNr++);
         } else if(name == "texture_specular") {
             number = to_string(specularNr++);
+        } else if(name == "texture_normal") {
+            number = to_string(normalNr++);
+        } else if(name == "texture_height") {
+            number = to_string(heightNr++);
         }
-        shader.setInt("material."+name+number, i);
+        shader.setInt(name+number, i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
 
     //draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
@@ -64,6 +69,22 @@ void cobb::Mesh::setupMesh() {
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
+    //Vertex tangent
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+
+    //Vertex Bitangent
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+
+    //ids?
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
+
+    //weights?
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
+
     glBindVertexArray(0);
 }
 
@@ -73,10 +94,10 @@ void cobb::Model::Draw(Shader& shader) {
     }
 }
 
-void cobb::Model::loadModel(const string path)
+void cobb::Model::loadModel(const string &path)
 {
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -194,11 +215,26 @@ vector<cobb::Texture> cobb::Model::loadMaterialTextures(aiMaterial* mat, aiTextu
     {
         aiString str;
         mat->GetTexture(type, i, &str);
-        Texture texture;
-        texture.id = TextureFromFile(str.C_Str(), directory);
-        texture.type = typeName;
-        texture.path = str.C_Str();
-        textures.push_back(texture);
+        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+        bool skip = false;
+        for(unsigned int j = 0; j < textures_loaded.size(); j++)
+        {
+            if(std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+            {
+                textures.push_back(textures_loaded[j]);
+                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
+        }
+        if(!skip)
+        {   // if texture hasn't been loaded already, load it
+            Texture texture;
+            texture.id = TextureFromFile(str.C_Str(), this->directory);
+            texture.type = typeName;
+            texture.path = str.C_Str();
+            textures.push_back(texture);
+            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+        }
     }
     return textures;
 }

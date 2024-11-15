@@ -2,12 +2,11 @@
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+uniform mat4 viewProj;
 
 out vec3 pos;
 
 void main() {
     pos = aPos;
-    gl_Position = proj * view * model * vec4(aPos, 1.0f);
+    gl_Position = viewProj * model * vec4(aPos, 1.0f);
 }
