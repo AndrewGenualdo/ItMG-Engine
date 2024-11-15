@@ -21,6 +21,7 @@ void cobb::Mesh::Draw(Shader &shader) {
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
     unsigned int heightNr = 1;
+    unsigned int roughnessNr = 1;
     for(unsigned int i = 0; i < textures.size(); i++) {
         string number;
         string name = textures[i].type;
@@ -32,6 +33,8 @@ void cobb::Mesh::Draw(Shader &shader) {
             number = to_string(normalNr++);
         } else if(name == "texture_height") {
             number = to_string(heightNr++);
+        } else if(name == "texture_roughness") {
+            number = to_string(roughnessNr++);
         }
         shader.setInt(name+number, i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
@@ -190,7 +193,7 @@ cobb::Mesh cobb::Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // diffuse: texture_diffuseN
     // specular: texture_specularN
     // normal: texture_normalN
-
+    cout << "--------------------------" << endl;
     // 1. diffuse maps
     vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -198,11 +201,14 @@ cobb::Mesh cobb::Model::processMesh(aiMesh* mesh, const aiScene* scene)
     vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
-    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    // 5. roughness maps
+    std::vector<Texture> roughnessMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
+    textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
     // return a mesh object created from the extracted mesh data
     return Mesh(vertices, indices, textures);
@@ -210,9 +216,11 @@ cobb::Mesh cobb::Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 vector<cobb::Texture> cobb::Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
 {
+    cout << typeName << ": " << mat->GetTextureCount(type) << endl;
     vector<Texture> textures;
     for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
+
         aiString str;
         mat->GetTexture(type, i, &str);
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
