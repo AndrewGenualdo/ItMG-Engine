@@ -15,8 +15,10 @@
 #include "ew/ewMath/ewMath.h"
 #include "cobb/objects/2d/triangle.hpp"
 #include "cobb/objects/2d/fadeTriangle.hpp"
-#include "cobb/objects/3d/geometry.hpp"
+#include "cobb/objects/3d/model.hpp"
 #include "cobb/objects/3d/lightSource.hpp"
+#include "cobb/objects/3d/mesh.hpp"
+#include "cobb/objects/3d/geometry.hpp"
 #include <ew/external/glad.h>
 #include <GLFW/glfw3.h>
 #include <assimp/Importer.hpp>
@@ -857,20 +859,22 @@ int skybox() {
     glfwSetKeyCallback(window.window, key_callback);
     glfwSetCursorPosCallback(window.window, mouse_position_callback);
     glfwSetScrollCallback(window.window, scroll_callback);
-    glfwSwapInterval(0);
     camera = Camera(vec3(0.5f, 12.0f, 31.3f), vec3(0, 0, -450.0f), 60.0f, vec2(Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT));
     Line::loadShader();
     LightSource::loadShader();
 
-
-    //Assimp::Importer importer;
-    //const aiScene* scene = importer.ReadFile("assets/testing/backpack.fbx", aiProcess_Triangulate | aiProcess_FlipUVs);
     stbi_set_flip_vertically_on_load(true);
     Shader shader = Shader("assets/testing/sphere");
     string path = "assets/testing/backpack/backpack.obj";
-    Model ourModel(path);
+
+    //Model model(path);
 
     LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(0, 1, 1, 1));
+
+    MeshData sphereMeshData;
+    createSphere(1.0f, 256, &sphereMeshData);
+    auto sphereMesh = ProceduralMesh(sphereMeshData);
+
 
     while (!glfwWindowShouldClose(window.window)) {
         glfwPollEvents();
@@ -878,18 +882,23 @@ int skybox() {
         float time = window.getTime();
         camera.update(window.window, deltaTime);
         mat4 viewProj = camera.proj * camera.view;
+
+
+        mat4 model = Object::rotate(time * 0.1f, time * 0.02f, 0.0f) * Object::scale(1, 1, 1);
         shader.use();
         shader.setMat4("viewProj", viewProj);
-        shader.setMat4("model", mat4(1)/*Object::scale(100.0f, 100.0f, 100.0f)*/);
+        shader.setMat4("model", model/*Object::scale(100.0f, 100.0f, 100.0f)*/);
         shader.setVec3("cameraPos", camera._position);
         shader.setVec3("light.pos", lightSource.pos);
         shader.setVec3("light.color", lightSource.color);
-        ourModel.Draw(shader);
+        shader.setMat3("transposeInverseModel", mat3(transpose(inverse(model))));
+        sphereMesh.draw();
+        //model.Draw(shader);
 
 
         lightSource.pos.x = cos(time * 2.0f) * 10.0f;
-        lightSource.pos.y = sin(time * 2.0f) * 10.0f;
-        lightSource.pos.z = sin(time * 2.0f) * 4.0f;
+        //lightSource.pos.y = sin(time * 2.0f) * 10.0f;
+        lightSource.pos.z = sin(time * 2.0f) * 10.0f;
         glBindVertexArray(*Cube::getVAO());
         lightShader->use();
         lightShader->setMat4("viewProj", viewProj);

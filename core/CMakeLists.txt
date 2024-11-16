@@ -40,12 +40,12 @@ add_library(core STATIC ${CORE_SRC} ${CORE_INC}
         cobb/objects/2d/fadeTriangle.hpp
         cobb/objects/3d/lightSource.cpp
         cobb/objects/3d/lightSource.hpp
-        cobb/objects/3d/mesh.cpp
-        cobb/objects/3d/mesh.hpp
-        cobb/objects/3d/cubeMap.cpp
-        cobb/objects/3d/cubeMap.hpp
+        cobb/objects/3d/model.cpp
+        cobb/objects/3d/model.hpp
         cobb/objects/3d/geometry.cpp
         cobb/objects/3d/geometry.hpp
+        cobb/objects/3d/mesh.cpp
+        cobb/objects/3d/mesh.hpp
 )
 
 add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
