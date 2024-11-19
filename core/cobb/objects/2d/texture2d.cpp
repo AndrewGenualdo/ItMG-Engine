@@ -4,6 +4,15 @@
 
 #include "texture2d.hpp"
 
+cobb::Texture2d::Texture2d(const string &path) {
+    float vertices[8] = {1, 1, 1, -1, -1, -1, -1, 1};
+    loadVertices(vertices);
+    m_path = path.c_str();
+    m_filterMode = GL_NEAREST;
+    m_wrapMode = GL_REPEAT;
+    load();
+}
+
 cobb::Texture2d::Texture2d(const string &path, float positions[8]) {
     loadVertices(positions);
     m_path = path.c_str();
@@ -82,6 +91,15 @@ void cobb::Texture2d::bind() {
 void cobb::Texture2d::draw() {
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
+
+int cobb::Texture2d::getWidth() const {
+    return m_width;
+}
+
+int cobb::Texture2d::getHeight() const {
+    return m_height;
+}
+
 
 void cobb::Texture2d::loadVertices(float *positions) {
     // corners (top right, bottom right, bottom left, top left) (4)

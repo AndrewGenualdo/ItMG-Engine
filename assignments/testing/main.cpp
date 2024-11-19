@@ -25,6 +25,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "cobb/objects/2d/texture2d.hpp"
+
 
 using namespace cobb;
 using namespace glm;
@@ -864,9 +866,21 @@ int skybox() {
     LightSource::loadShader();
 
     stbi_set_flip_vertically_on_load(true);
-    Shader shader = Shader("assets/testing/sphere");
-    string path = "assets/testing/backpack/backpack.obj";
+    Shader skyShader = Shader("assets/testing/sphere");
+    skyShader.use();
+    skyShader.setInt("sphereMapTex", 0);
+    Texture2d sphereMap = Texture2d("assets/testing/skysphere.png");
 
+    Shader pointerShader = Shader("assets/testing/pointer");
+    pointerShader.use();
+    pointerShader.setInt("tex", 0);
+    Texture2d pointer = Texture2d("assets/testing/wii-pointer.png");
+    float w = static_cast<float>(pointer.getWidth()) / static_cast<float>(pointer.getHeight()) * 0.5f;
+    float h = static_cast<float>(pointer.getHeight()) / static_cast<float>(pointer.getWidth()) * 0.5f;
+    float vertices[8] = {w, h, w, -h, -w, -h, -w, h};
+    pointer.loadVertices(vertices);
+
+    //string path = "assets/testing/backpack/backpack.obj";
     //Model model(path);
 
     LightSource lightSource = LightSource(vec3(0, 0, 0), vec4(0, 1, 1, 1));
@@ -885,13 +899,16 @@ int skybox() {
 
 
         mat4 model = Object::rotate(time * 0.1f, time * 0.02f, 0.0f) * Object::scale(1, 1, 1);
-        shader.use();
-        shader.setMat4("viewProj", viewProj);
-        shader.setMat4("model", model/*Object::scale(100.0f, 100.0f, 100.0f)*/);
-        shader.setVec3("cameraPos", camera._position);
-        shader.setVec3("light.pos", lightSource.pos);
-        shader.setVec3("light.color", lightSource.color);
-        shader.setMat3("transposeInverseModel", mat3(transpose(inverse(model))));
+        skyShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        sphereMap.bind();
+        skyShader.setMat4("viewProj", viewProj);
+        skyShader.setMat4("model", model);
+        skyShader.setVec3("cameraPos", camera._position);
+        skyShader.setVec3("light.pos", lightSource.pos);
+        skyShader.setVec3("light.color", lightSource.color);
+        skyShader.setMat3("transposeInverseModel", mat3(transpose(inverse(model))));
+
         sphereMesh.draw();
         //model.Draw(shader);
 
@@ -906,7 +923,15 @@ int skybox() {
         lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z) * Object::scale(0.5f, 0.5f, 0.5f));
         lightSource.draw();
 
+        if(camera.lock) {
+            pointerShader.use();
+            glBindVertexArray(*Texture2d::getVAO());
 
+
+
+            pointer.bind();
+            pointer.draw();
+        }
 
         if(camera.ui && lineShader != nullptr) {
             glDisable(GL_DEPTH_TEST);

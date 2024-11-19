@@ -15,11 +15,13 @@ out vec4 FragColor;
 
 uniform vec3 cameraPos;
 
-uniform sampler2D texture_diffuse1;
+/*uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_normal3;
 uniform sampler2D texture_specular2;
 uniform sampler2D texture_height5;
-uniform sampler2D texture_roughness4;
+uniform sampler2D texture_roughness4;*/
+
+uniform sampler2D sphereMapTex;
 
 uniform mat3 transposeInverseModel;
 
@@ -73,9 +75,9 @@ void main() {
         FragColor = vec4(vec3(0), 1.0f);
     }*/
 
-    vec4 outColor = vec4(1);
-
-    float e = 2.71828182846f;
+    vec4 outColor = texture(sphereMapTex, TexCoord);
+    //outColor = vec4(0, TexCoord.x, TexCoord.y, 1.0f);
+    /*float e = 2.71828182846f;
 
 
     vec3 coords[26] = vec3[26](
@@ -112,7 +114,7 @@ void main() {
         float blue = float(i) / 26.0f;
         float green = 1.0f - blue;
         if(color < 1.0f) outColor = vec4(color, green, blue, 1.0f);
-    }
+    }*/
 
 
 

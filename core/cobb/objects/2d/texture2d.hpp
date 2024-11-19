@@ -30,17 +30,23 @@ namespace cobb {
         int m_filterMode, m_wrapMode;
         const char *m_path;
 
-        void loadVertices(float positions[]);
+
 
 
     public:
         //unsigned int VBO, EBO;
         float vertices[36];
+        Texture2d(const string &path);
         Texture2d(const string &path, float positions[8]);
         Texture2d(const string &path, int filterMode, int wrapMode, float positions[8]);
         ~Texture2d();
         void bind();
         void draw();
+
+        void loadVertices(float positions[]);
+
+        int getWidth() const;
+        int getHeight() const;
 
         unsigned int getId() const;
 
