@@ -39,6 +39,31 @@ const static int WORLD_SIZE = WORLD_LENGTH * WORLD_LENGTH * WORLD_LENGTH;
 static Object blocks[WORLD_SIZE];
 static int wireframeMode = 0;
 
+void drawAxisGizmo() {
+    if(camera.ui && lineShader != nullptr) {
+        glDisable(GL_DEPTH_TEST);
+
+        //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
+        const float compassScale = 900.0f;
+
+        vec3 p = camera.forward * vec3(compassScale) + camera._position;
+
+        Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
+        Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
+        Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
+
+        lineShader->use();
+        lineShader->setMat4("viewProj", camera.proj * camera.view);
+        glBindVertexArray(*Line::getVAO());
+
+        xAxis.draw(&camera);
+        yAxis.draw(&camera);
+        zAxis.draw(&camera);
+
+        glEnable(GL_DEPTH_TEST);
+    }
+}
+
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     camera.handleKeyboard(key, action);
@@ -353,28 +378,7 @@ int world() {
             }
         }
 
-        if(camera.ui && lineShader != nullptr) {
-            glDisable(GL_DEPTH_TEST);
-
-            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
-            const float compassScale = 900.0f;
-
-            vec3 p = camera.forward * vec3(compassScale) + camera._position;
-
-            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
-            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
-            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
-
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
-
-            xAxis.draw(&camera);
-            yAxis.draw(&camera);
-            zAxis.draw(&camera);
-
-            glEnable(GL_DEPTH_TEST);
-        }
+        drawAxisGizmo();
 
 
 
@@ -694,30 +698,7 @@ int mesh() {
         }
 
 
-
-
-        if(camera.ui && lineShader != nullptr) {
-            glDisable(GL_DEPTH_TEST);
-
-            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
-            const float compassScale = 900.0f;
-
-            vec3 p = camera.forward * vec3(compassScale) + camera._position;
-
-            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
-            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
-            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
-
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
-
-            xAxis.draw(&camera);
-            yAxis.draw(&camera);
-            zAxis.draw(&camera);
-
-            glEnable(GL_DEPTH_TEST);
-        }
+        drawAxisGizmo();
 
         glfwSwapBuffers(window.window);
     }
@@ -760,28 +741,7 @@ int triangleTest() {
         triangle3.draw(&camera, false);
         triangle4.draw(&camera, false);*/
 
-        if(camera.ui && lineShader != nullptr) {
-            glDisable(GL_DEPTH_TEST);
-
-            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
-            const float compassScale = 900.0f;
-
-            vec3 p = camera.forward * vec3(compassScale) + camera._position;
-
-            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
-            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
-            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
-
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
-
-            xAxis.draw(&camera);
-            yAxis.draw(&camera);
-            zAxis.draw(&camera);
-
-            glEnable(GL_DEPTH_TEST);
-        }
+        drawAxisGizmo();
 
         glfwSwapBuffers(window.window);
     }
@@ -826,28 +786,7 @@ int geometry() {
         float time = window.getTime();
         camera.update(window.window, deltaTime);
 
-        if(camera.ui && lineShader != nullptr) {
-            glDisable(GL_DEPTH_TEST);
-
-            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
-            const float compassScale = 900.0f;
-
-            vec3 p = camera.forward * vec3(compassScale) + camera._position;
-
-            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
-            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
-            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
-
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
-
-            xAxis.draw(&camera);
-            yAxis.draw(&camera);
-            zAxis.draw(&camera);
-
-            glEnable(GL_DEPTH_TEST);
-        }
+        drawAxisGizmo();
 
         glfwSwapBuffers(window.window);
     }
@@ -865,20 +804,19 @@ int skybox() {
     Line::loadShader();
     LightSource::loadShader();
 
-    stbi_set_flip_vertically_on_load(true);
     Shader skyShader = Shader("assets/testing/sphere");
     skyShader.use();
     skyShader.setInt("sphereMapTex", 0);
     Texture2d sphereMap = Texture2d("assets/testing/skysphere.png");
 
-    Shader pointerShader = Shader("assets/testing/pointer");
+    /*Shader pointerShader = Shader("assets/testing/pointer");
     pointerShader.use();
     pointerShader.setInt("tex", 0);
     Texture2d pointer = Texture2d("assets/testing/wii-pointer.png");
     float w = static_cast<float>(pointer.getWidth()) / static_cast<float>(pointer.getHeight()) * 0.5f;
     float h = static_cast<float>(pointer.getHeight()) / static_cast<float>(pointer.getWidth()) * 0.5f;
     float vertices[8] = {w, h, w, -h, -w, -h, -w, h};
-    pointer.loadVertices(vertices);
+    pointer.loadVertices(vertices);*/
 
     //string path = "assets/testing/backpack/backpack.obj";
     //Model model(path);
@@ -898,63 +836,39 @@ int skybox() {
         mat4 viewProj = camera.proj * camera.view;
 
 
-        mat4 model = Object::rotate(time * 0.1f, time * 0.02f, 0.0f) * Object::scale(1, 1, 1);
+        mat4 model = /*Object::rotate(time * 0.1f, time * 0.02f, 0.0f) * */Object::scale(2, 2, 2);
         skyShader.use();
         glActiveTexture(GL_TEXTURE0);
         sphereMap.bind();
         skyShader.setMat4("viewProj", viewProj);
         skyShader.setMat4("model", model);
-        skyShader.setVec3("cameraPos", camera._position);
-        skyShader.setVec3("light.pos", lightSource.pos);
-        skyShader.setVec3("light.color", lightSource.color);
-        skyShader.setMat3("transposeInverseModel", mat3(transpose(inverse(model))));
-
+        //skyShader.setVec3("cameraPos", camera._position);
+        //skyShader.setVec3("light.pos", lightSource.pos);
+        //skyShader.setVec3("light.color", lightSource.color);
+        //skyShader.setMat3("transposeInverseModel", mat3(transpose(inverse(model))));
         sphereMesh.draw();
         //model.Draw(shader);
 
 
-        lightSource.pos.x = cos(time * 2.0f) * 10.0f;
+        //lightSource.pos.x = cos(time * 2.0f) * 10.0f;
         //lightSource.pos.y = sin(time * 2.0f) * 10.0f;
-        lightSource.pos.z = sin(time * 2.0f) * 10.0f;
-        glBindVertexArray(*Cube::getVAO());
-        lightShader->use();
-        lightShader->setMat4("viewProj", viewProj);
-        lightShader->setVec4("color", lightSource.color);
-        lightShader->setMat4("model", Object::translate(lightSource.pos.x, lightSource.pos.y, lightSource.pos.z) * Object::scale(0.5f, 0.5f, 0.5f));
-        lightSource.draw();
+        //lightSource.pos.z = sin(time * 2.0f) * 10.0f;
 
-        if(camera.lock) {
+
+        lightSource.draw(camera);
+
+        /*if(camera.lock) {
             pointerShader.use();
             glBindVertexArray(*Texture2d::getVAO());
 
-
-
             pointer.bind();
             pointer.draw();
-        }
+        }*/
 
-        if(camera.ui && lineShader != nullptr) {
-            glDisable(GL_DEPTH_TEST);
 
-            //higher number = less stuttering, can't be above ~950 because depth will start cutting it off, 900 to be safe
-            const float compassScale = 900.0f;
 
-            vec3 p = camera.forward * vec3(compassScale) + camera._position;
 
-            Line xAxis = Line(p, p + vec3(0.05f * compassScale, 0, 0), vec4(1, 0, 0, 1));
-            Line yAxis = Line(p, p + vec3(0, 0.05f * compassScale, 0), vec4(0, 1, 0, 1)); //up
-            Line zAxis = Line(p, p + vec3(0, 0, 0.05f * compassScale), vec4(0, 0, 1, 1));
-
-            lineShader->use();
-            lineShader->setMat4("viewProj", camera.proj * camera.view);
-            glBindVertexArray(*Line::getVAO());
-
-            xAxis.draw(&camera);
-            yAxis.draw(&camera);
-            zAxis.draw(&camera);
-
-            glEnable(GL_DEPTH_TEST);
-        }
+        drawAxisGizmo();
 
         glfwSwapBuffers(window.window);
     }

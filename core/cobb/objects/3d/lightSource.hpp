@@ -7,6 +7,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include "camera.hpp"
 #include "cube.hpp"
 
 using namespace std;
@@ -23,39 +24,13 @@ namespace cobb {
         vec3 pos;
         vec4 color;
 
-        LightSource(vec3 pos, vec4 color) {
-            this->pos = pos;
-            this->color = color;
-            load();
-        }
+        LightSource(vec3 pos, vec4 color);
 
-        void load() {
-            glBindVertexArray(*Cube::getVAO());
-            glBindBuffer(GL_ARRAY_BUFFER, *Cube::getVBO());
-            glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES_CUBE), VERTICES_CUBE, GL_STATIC_DRAW);
+        void load();
+        void draw(Camera &camera);
 
-            // position attribute
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)nullptr);
-            glEnableVertexAttribArray(0);
-
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            loadShader();
-        }
-
-        void draw() {
-            loadShader();
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-
-        static void loadShader() {
-            if(lightShader == nullptr) {
-                cout << "Loaded light shader!" << endl;
-                lightShader = new Shader("assets/lightSource");
-                lightShader->use();
-                glBindVertexArray(*Cube::getVAO());
-            }
-        }
+        static void loadShader();
+        static void bind();
     };
 }
 
