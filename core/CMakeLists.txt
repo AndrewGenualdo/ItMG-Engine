@@ -15,47 +15,35 @@ set(CORE_INC_DIR
  CACHE PATH "CORE INCLUDE SOURCE PATH"
 )
 
-
-
 add_library(core STATIC ${CORE_SRC} ${CORE_INC}
-        cobb/shader.cpp
-        cobb/shader.hpp
-        cobb/window.cpp
-        cobb/window.hpp
-        cobb/objects/2d/texture2d.cpp
-        cobb/objects/2d/texture2d.hpp
-        cobb/objects/3d/cube.cpp
-        cobb/objects/3d/cube.hpp
-        cobb/objects/3d/camera.cpp
-        cobb/objects/3d/camera.hpp
-        cobb/objects/3d/object.cpp
-        cobb/objects/3d/object.hpp
-        cobb/objects/1d/line.cpp
-        cobb/objects/1d/line.hpp
-        cobb/objects/1d/fadeLine.cpp
-        cobb/objects/1d/fadeLine.hpp
-        cobb/objects/2d/triangle.cpp
-        cobb/objects/2d/triangle.hpp
-        cobb/objects/2d/fadeTriangle.cpp
-        cobb/objects/2d/fadeTriangle.hpp
-        cobb/objects/3d/lightSource.cpp
-        cobb/objects/3d/lightSource.hpp
-        cobb/objects/3d/model.cpp
-        cobb/objects/3d/model.hpp
-        cobb/objects/3d/geometry.cpp
-        cobb/objects/3d/geometry.hpp
-        cobb/objects/3d/mesh.cpp
-        cobb/objects/3d/mesh.hpp
+        cobb/core/shader.h
+        cobb/core/camera.cpp
+        cobb/core/object.cpp
+        cobb/shapes/line.cpp
+        cobb/misc/texture2d.cpp
+        cobb/shapes/geometry.cpp
+        cobb/shapes/mesh.cpp
+        cobb/shapes/torus.h
+        cobb/misc/textRenderer.h
+        cobb/shapes/model.h
+        cobb/shapes/cube.cpp
+        cobb/misc/animation.cpp
+        cobb/misc/animation.h
+        cobb/core/scene.cpp
+        cobb/core/scene.h
+        cobb/misc/fontRenderer.cpp
+        cobb/misc/fontRenderer.h
 )
 
-add_custom_target(copyAssetsLine ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/cobb/objects/1d/assets/
-        ${CMAKE_CURRENT_SOURCE_DIR}/cobb/objects/2d/assets/
-        ${CMAKE_CURRENT_SOURCE_DIR}/cobb/objects/3d/assets/
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)
+add_custom_target(copyAssetsLine ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/core/cobb/shapes/assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/core/cobb/misc/assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets
+)
 
 find_package(OpenGL REQUIRED)
-target_link_libraries(core PUBLIC IMGUI glm assimp)
+
+target_link_libraries(core PUBLIC IMGUI glm assimp enet)
 
 install (TARGETS core DESTINATION lib)
 install (FILES ${CORE_INC} DESTINATION include/core)
